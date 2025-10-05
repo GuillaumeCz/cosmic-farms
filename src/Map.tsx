@@ -2,6 +2,7 @@ import { bounds, LatLng, Point } from "leaflet";
 import { useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
+import './Map.css';
 
 const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   const map = useMap();
@@ -20,7 +21,7 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
 
 function Map({ viewBounds, children }: { viewBounds?: LatLng[], children: any }) {
   return (
-    <MapContainer center={[44.3502628, 3.6953171]} zoom={13} scrollWheelZoom={false} id={"map"} style={{ height: '500px', width: '100%' }}>
+    <MapContainer center={[44.3502628, 3.6953171]} zoom={13} scrollWheelZoom={false} id={"map"}>
       {children}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

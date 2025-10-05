@@ -1,0 +1,9 @@
+.parcels-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.parcels-list {
+  width: 100%;
+  margin: 5px;
+}

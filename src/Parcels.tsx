@@ -6,6 +6,9 @@ import { Polygon, Tooltip } from "react-leaflet";
 import Map from './Map';
 import { Link, useParams } from 'react-router-dom';
 import { LatLng } from 'leaflet';
+
+import './Parcels.css';
+
 function Parcels() {
   const { farmId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null)
@@ -27,8 +30,8 @@ function Parcels() {
 
   }, []);
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
-      <div style={{ width: '100%', margin: '5px' }}>
+    <div className='parcels-container'>
+      <div className='parcels-list'>
         {farm && (
           <>
             {farm.name}

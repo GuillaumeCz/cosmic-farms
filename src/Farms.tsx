@@ -6,6 +6,9 @@ import { Marker, Tooltip } from "react-leaflet";
 import Map from './Map';
 import { Link } from 'react-router-dom';
 import { LatLng } from 'leaflet';
+
+import './Farms.css';
+
 function Farms() {
   const [farms, setFarms] = useState<Farm[]>([])
   const [viewBounds, setViewBounds] = useState<LatLng[]>();
@@ -17,17 +20,15 @@ function Farms() {
     setFarms(generateFarms(2));
   }, []);
 
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
-      <div style={{ width: '100%', margin: '5px' }}>
+    <div className='farms-container'>
+      <div className='farms-list'>
         {farms && farms.map(f => (
           <Card title={f.name} key={f.id} extra={
             <Link to={`/farms/${f.id}`}>+</Link>
           }>
             <p>{f.owner}</p>
             <p>{f.coordinates.toString()}</p>
-
           </Card>))
         }
       </div >
