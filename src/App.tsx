@@ -1,5 +1,8 @@
 import { Layout } from 'antd';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { Route, Routes } from 'react-router-dom';
+import Farms from './Farms';
+import Parcels from './Parcels';
+
 
 const { Header, Content } = Layout;
 
@@ -15,21 +18,14 @@ function App() {
             padding: 24,
             margin: 0,
             minHeight: 280,
-            display: 'flex',
-            flexDirection: 'row',
           }}
         >
-          <div style={{ width: '100%' }}>Content</div>
-          <div style={{ width: '100%' }}>
-            <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false} id={"map"} style={{ height: '500px', width: '100%' }}>
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-            </MapContainer>
-          </div>
+          <Routes>
+            <Route path='/' index element={<Farms />} />
+            <Route path='/farms' element={<Farms />} />
+            <Route path='/farms/:farmId' element={<Parcels />} />
+          </Routes>
         </Content>
-
       </Layout>
     </Layout>
   );
