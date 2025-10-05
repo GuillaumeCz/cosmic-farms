@@ -39,9 +39,8 @@ function Parcels() {
               <Card title={p.name} key={p.id} extra={
                 <Link to={`/farms/${farm.id}/parcels/${p.id}`}>+</Link>
               }>
-                <ul>
-                  {p.coordinates.map((c, i) => <li key={c.toString() + i}>{c.toString()}</li>)}
-                </ul>
+                Bla blahh
+                <p>Number of planche: {p.planches.length}</p>
               </Card>))
             }
           </>
@@ -50,7 +49,7 @@ function Parcels() {
       <Map viewBounds={viewBounds}>
         {farm && farm.parcels.length > 0 && farm.parcels.map(p => (
           <Polygon pathOptions={{ color: 'red' }} positions={p.coordinates} key={`${farm.id}-${p.id}`}>
-            <Tooltip permanent>{p.name}</Tooltip>
+            <Tooltip>{p.name}</Tooltip>
           </Polygon>
         ))}
       </Map>

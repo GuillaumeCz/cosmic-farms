@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import Card from 'antd/es/card/Card';
 import type { Farm } from './types';
-import { generateFarms } from './data';
 import { Marker, Tooltip } from "react-leaflet";
 import Map from './Map';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LatLng } from 'leaflet';
+import { defaultFarms } from './data';
 
 import './Farms.css';
 
@@ -13,11 +13,12 @@ function Farms() {
   const [farms, setFarms] = useState<Farm[]>([])
   const [viewBounds, setViewBounds] = useState<LatLng[]>();
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const f = generateFarms(2)
-    const vb = f.map(({ coordinates }) => coordinates);
-    setViewBounds(vb);
-    setFarms(generateFarms(2));
+    const f = defaultFarms;
+    setViewBounds(f.map(({ coordinates }) => coordinates));
+    setFarms(f);
   }, []);
 
   return (
@@ -28,14 +29,17 @@ function Farms() {
             <Link to={`/farms/${f.id}`}>+</Link>
           }>
             <p>{f.owner}</p>
-            <p>{f.coordinates.toString()}</p>
+            <p>Number of parcels: {f.parcels.length}</p>
           </Card>))
         }
       </div >
       <Map viewBounds={viewBounds}>
         {farms && farms.map(f => (
-          <Marker position={f.coordinates} key={`${f.id}-map`}>
-            <Tooltip permanent>{f.name}</Tooltip>
+          <Marker
+            eventHandlers={{ click: () => navigate(`/farms/${f.id}`) }}
+            position={f.coordinates}
+            key={`${f.id}-map`}>
+            <Tooltip>{f.name}</Tooltip>
           </Marker>
         ))}
       </Map>

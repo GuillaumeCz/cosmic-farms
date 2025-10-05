@@ -21,7 +21,7 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
 
 function Map({ viewBounds, children }: { viewBounds?: LatLng[], children: any }) {
   return (
-    <MapContainer center={[44.3502628, 3.6953171]} zoom={13} scrollWheelZoom={false} id={"map"}>
+    <MapContainer center={[44.3502628, 3.6953171]} zoom={13} id={"map"}>
       {children}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
