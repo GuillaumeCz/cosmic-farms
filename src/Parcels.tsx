@@ -42,7 +42,7 @@ function Parcels() {
                 <Link to={`/farms/${farm.id}/parcels/${p.id}`}>+</Link>
               }>
                 Bla blahh
-                <p>Number of planche: {p.planches.length}</p>
+                <p>Number of boards {p.boards.length}</p>
               </Card>))
             }
           </>

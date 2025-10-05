@@ -64,13 +64,13 @@ const farm0: Farm = {
       id: `uuid-parcel-0`,
       name: `parcelle du bas-0`,
       coordinates: farm0Coordinates.parcels[0],
-      planches: [],
+      boards: [],
     },
     {
       id: "uuid-parcel-1",
       name: `parcelle 'champ à patates'`,
       coordinates: farm0Coordinates.parcels[1],
-      planches: [],
+      boards: [],
     },
   ],
 };
@@ -85,13 +85,13 @@ const farm1: Farm = {
       id: `uuid-parcel-0`,
       name: `parcelle du bas-0`,
       coordinates: farm1Coordinates.parcels[0],
-      planches: [],
+      boards: [],
     },
     {
       id: "uuid-parcel-1",
       name: `parcelle 'champ à patates'`,
       coordinates: farm1Coordinates.parcels[1],
-      planches: [],
+      boards: [],
     },
   ],
 };

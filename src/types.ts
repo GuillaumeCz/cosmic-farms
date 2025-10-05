@@ -5,7 +5,7 @@ export interface Rang {
   name: string;
 }
 
-export interface Planche {
+export interface Board {
   id: string;
   name: string;
   rangs: Rang[];
@@ -15,7 +15,7 @@ export interface Parcel {
   id: string;
   name: string;
   coordinates: LatLng[];
-  planches: Planche[];
+  boards: Board[];
 }
 
 export interface Farm {
