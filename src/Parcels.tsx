@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import Card from 'antd/es/card/Card';
 import type { Farm } from './types';
 import { getFarm } from './data';
-import { Polygon, Tooltip } from "react-leaflet";
+import { Marker, Polygon, Tooltip } from "react-leaflet";
 import Map from './Map';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { LatLng } from 'leaflet';
 
 import './Parcels.css';
@@ -13,6 +13,8 @@ function Parcels() {
   const { farmId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null)
   const [viewBounds, setViewBounds] = useState<LatLng[]>()
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     let f;
@@ -47,11 +49,19 @@ function Parcels() {
         )}
       </div >
       <Map viewBounds={viewBounds}>
-        {farm && farm.parcels.length > 0 && farm.parcels.map(p => (
-          <Polygon pathOptions={{ color: 'red' }} positions={p.coordinates} key={`${farm.id}-${p.id}`}>
-            <Tooltip>{p.name}</Tooltip>
-          </Polygon>
-        ))}
+        {farm && <>
+          <Marker
+            eventHandlers={{ click: () => navigate(`/farms/${farm.id}`) }}
+            position={farm.coordinates}
+            key={`${farm.id}-map`}>
+            <Tooltip>{farm.name}</Tooltip>
+          </Marker>
+          {farm.parcels.length > 0 && farm.parcels.map(p => (
+            <Polygon pathOptions={{ color: 'red' }} positions={p.coordinates} key={`${farm.id}-${p.id}`}>
+              <Tooltip>{p.name}</Tooltip>
+            </Polygon>
+          ))}
+        </>}
       </Map>
     </div >
   )
