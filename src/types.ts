@@ -1,14 +1,16 @@
 import { LatLng } from "leaflet";
 
-export interface Rang {
+export interface Row {
   id: string;
   name: string;
+  coordinates: LatLng[];
 }
 
 export interface Board {
   id: string;
   name: string;
-  rangs: Rang[];
+  coordinates: LatLng[];
+  rows: Row[];
 }
 
 export interface Parcel {

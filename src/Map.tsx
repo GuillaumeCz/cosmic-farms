@@ -19,7 +19,7 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   return (<></>)
 }
 
-function Map({ viewBounds, children }: { viewBounds?: LatLng[], children: any }) {
+function Map({ viewBounds, children, }: { viewBounds?: LatLng[], children: any }) {
   return (
     <MapContainer center={[44.3502628, 3.6953171]} zoom={13} id={"map"}>
       {children}

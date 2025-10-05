@@ -57,7 +57,11 @@ function Parcels() {
             <Tooltip>{farm.name}</Tooltip>
           </Marker>
           {farm.parcels.length > 0 && farm.parcels.map(p => (
-            <Polygon pathOptions={{ color: 'red' }} positions={p.coordinates} key={`${farm.id}-${p.id}`}>
+            <Polygon
+              pathOptions={{ color: 'red' }}
+              positions={p.coordinates} key={`${farm.id}-${p.id}`}
+              eventHandlers={{ click: () => navigate(`/farms/${farm.id}/parcels/${p.id}`) }}
+            >
               <Tooltip>{p.name}</Tooltip>
             </Polygon>
           ))}

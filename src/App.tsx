@@ -4,6 +4,7 @@ import Farms from './Farms';
 import Parcels from './Parcels';
 
 import './App.css'
+import Boards from './Boards';
 
 
 const { Header, Content } = Layout;
@@ -20,6 +21,8 @@ function App() {
             <Route path='/' index element={<Farms />} />
             <Route path='/farms' element={<Farms />} />
             <Route path='/farms/:farmId' element={<Parcels />} />
+            <Route path='/farms/:farmId/parcels' element={<Parcels />} />
+            <Route path='/farms/:farmId/parcels/:parcelId' element={<Boards />} />
           </Routes>
         </Content>
       </Layout>

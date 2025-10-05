@@ -5,13 +5,6 @@ const farm1Coordinates = {
   farm: new LatLng(44.3502628, 3.6953171),
   parcels: [
     [
-      [3.6991783005069254, 44.34436913759046],
-      [3.699245891763933, 44.34439499279105],
-      [3.699568129011257, 44.34406337095041],
-      [3.699461240528966, 44.34403077078079],
-      [3.6991783005069254, 44.34436913759046],
-    ],
-    [
       [3.703938204159751, 44.34601735897024],
       [3.70367620966661, 44.34595590469743],
       [3.7035881795562764, 44.34600686680764],
@@ -20,6 +13,30 @@ const farm1Coordinates = {
       [3.702607530078721, 44.34740035163284],
       [3.703938204159751, 44.34601735897024],
     ],
+    [
+      [3.6991783005069254, 44.34436913759046],
+      [3.699245891763933, 44.34439499279105],
+      [3.699568129011257, 44.34406337095041],
+      [3.699461240528966, 44.34403077078079],
+      [3.6991783005069254, 44.34436913759046],
+    ],
+  ].map((c) => c.map((d) => new LatLng(d[1], d[0]))),
+  boards: [
+    [
+      [3.703770032719031, 44.346004818998495],
+      [3.703606921537733, 44.3462064495439],
+      [3.7035160452862725, 44.346181454057444],
+      [3.703683816743275, 44.345981489782275],
+      [3.703770032719031, 44.346004818998495],
+    ],
+    [
+      [3.7025909719161025, 44.347327902786105],
+      [3.7026748576446047, 44.34709294928402],
+      [3.7027983561542044, 44.34714793847721],
+      [3.7025909719161025, 44.347327902786105],
+    ],
+    [],
+    [],
   ].map((c) => c.map((d) => new LatLng(d[1], d[0]))),
 };
 
@@ -52,6 +69,40 @@ const farm0Coordinates = {
       [3.6966391799163136, 44.34838985184513],
     ],
   ].map((c) => c.map((d) => new LatLng(d[1], d[0]))),
+  boards: [
+    [
+      [3.698123227953385, 44.349148168287826],
+      [3.6981596706284603, 44.34914542514301],
+      [3.6981385722139293, 44.34894791768659],
+      [3.698096375384867, 44.34895889033427],
+      [3.698123227953385, 44.349148168287826],
+    ],
+    [
+      [3.697501783195047, 44.348330702601686],
+      [3.6977549644395813, 44.34843082900997],
+      [3.697952522435716, 44.348528212089604],
+      [3.6980637687524127, 44.3486283382249],
+      [3.698121309932073, 44.3486022780082],
+      [3.697973620850247, 44.348485692743964],
+      [3.697522881609578, 44.348311500236974],
+      [3.697501783195047, 44.348330702601686],
+    ],
+    [
+      [3.6966470098102957, 44.34836193176193],
+      [3.6971639385590622, 44.348489722070724],
+      [3.697211883045203, 44.34846229393028],
+      [3.696656598699339, 44.34833263343751],
+      [3.6966470098102957, 44.34836193176193],
+    ],
+    [
+      [3.697100303133812, 44.34850842306926],
+      [3.6971142506534327, 44.34848473513972],
+      [3.696854478693968, 44.34842302179854],
+      [3.6968431463445097, 44.34845543689863],
+      [3.696967802024848, 44.34849844920268],
+      [3.697100303133812, 44.34850842306926],
+    ],
+  ].map((c) => c.map((d) => new LatLng(d[1], d[0]))),
 };
 
 const farm0: Farm = {
@@ -61,16 +112,42 @@ const farm0: Farm = {
   coordinates: farm0Coordinates.farm,
   parcels: [
     {
-      id: `uuid-parcel-0`,
+      id: `uuid-farm-0-parcel-0`,
       name: `parcelle du bas-0`,
       coordinates: farm0Coordinates.parcels[0],
-      boards: [],
+      boards: [
+        {
+          id: `uuid-farm-0-parcel-0-board-0`,
+          name: `North East`,
+          coordinates: farm0Coordinates.boards[0],
+          rows: [],
+        },
+        {
+          id: `uuid-farm-0-parcel-0-board-1`,
+          name: `South West`,
+          coordinates: farm0Coordinates.boards[1],
+          rows: [],
+        },
+      ],
     },
     {
-      id: "uuid-parcel-1",
+      id: "uuid-farm-0-parcel-1",
       name: `parcelle 'champ à patates'`,
       coordinates: farm0Coordinates.parcels[1],
-      boards: [],
+      boards: [
+        {
+          id: `uuid-farm-0-parcel-1-board-0`,
+          name: `North East`,
+          coordinates: farm0Coordinates.boards[2],
+          rows: [],
+        },
+        {
+          id: `uuid-farm-0-parcel-1-board-1`,
+          name: `South West`,
+          coordinates: farm0Coordinates.boards[3],
+          rows: [],
+        },
+      ],
     },
   ],
 };
@@ -82,16 +159,42 @@ const farm1: Farm = {
   coordinates: farm1Coordinates.farm,
   parcels: [
     {
-      id: `uuid-parcel-0`,
+      id: `uuid-farm-1-parcel-0`,
       name: `parcelle du bas-0`,
       coordinates: farm1Coordinates.parcels[0],
-      boards: [],
+      boards: [
+        {
+          id: `uuid-farm-1-parcel-1-board-0`,
+          name: `North East`,
+          coordinates: farm1Coordinates.boards[0],
+          rows: [],
+        },
+        {
+          id: `uuid-farm-1-parcel-1-board-1`,
+          name: `South West`,
+          coordinates: farm1Coordinates.boards[1],
+          rows: [],
+        },
+      ],
     },
     {
-      id: "uuid-parcel-1",
+      id: "uuid-farm-1-parcel-1",
       name: `parcelle 'champ à patates'`,
       coordinates: farm1Coordinates.parcels[1],
-      boards: [],
+      boards: [
+        {
+          id: `uuid-farm-1-parcel-1-board-0`,
+          name: `North East`,
+          coordinates: farm1Coordinates.boards[2],
+          rows: [],
+        },
+        {
+          id: `uuid-farm-1-parcel-1-board-1`,
+          name: `South West`,
+          coordinates: farm1Coordinates.boards[3],
+          rows: [],
+        },
+      ],
     },
   ],
 };
