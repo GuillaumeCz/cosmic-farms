@@ -5,7 +5,6 @@ import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
 import { Marker, Polygon, Tooltip } from "react-leaflet";
 
-import "./Boards.css";
 import { LatLng } from "leaflet";
 import BaseContent from "./BaseContent";
 
@@ -68,7 +67,7 @@ function Boards() {
 
   return (
     <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
-      <div className="boards-list">
+      <>
         {farm && (
           <>
             <p>{farm.name}</p>
@@ -85,7 +84,7 @@ function Boards() {
             )}
           </>
         )}
-      </div>
+      </>
     </BaseContent>
   );
 }

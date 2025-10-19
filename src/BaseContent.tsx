@@ -18,7 +18,7 @@ function BaseContent({
     <>
       <BreadCrumb />
       <div className="container">
-        {children}
+        <div className="content">{children}</div>
         <Map viewBounds={viewBounds}>{mapChildren}</Map>
       </div>
     </>

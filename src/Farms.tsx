@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { defaultFarms } from "./data";
 
-import "./Farms.css";
 import BaseContent from "./BaseContent";
 
 function Farms() {
@@ -40,7 +39,7 @@ function Farms() {
 
   return (
     <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
-      <div className="farms-list">
+      <>
         {farms &&
           farms.map((f) => (
             <Card
@@ -52,7 +51,7 @@ function Farms() {
               <p>Number of parcels: {f.parcels.length}</p>
             </Card>
           ))}
-      </div>
+      </>
     </BaseContent>
   );
 }

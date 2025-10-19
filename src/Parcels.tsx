@@ -6,7 +6,6 @@ import { Marker, Polygon, Tooltip } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
 
-import "./Parcels.css";
 import BaseContent from "./BaseContent";
 
 function Parcels() {
@@ -65,7 +64,7 @@ function Parcels() {
 
   return (
     <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
-      <div className="parcels-list">
+      <>
         {farm && (
           <>
             {farm.name}
@@ -81,7 +80,7 @@ function Parcels() {
             ))}
           </>
         )}
-      </div>
+      </>
     </BaseContent>
   );
 }
