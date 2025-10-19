@@ -5,7 +5,7 @@ import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
 import { Marker, Polygon, Tooltip } from "react-leaflet";
 
-import './Boards.css';
+import "./Boards.css";
 import { LatLng } from "leaflet";
 import BaseContent from "./BaseContent";
 
@@ -14,14 +14,14 @@ function Boards() {
   const [farm, setFarm] = useState<Farm | null>(null);
   const [parcel, setParcel] = useState<Parcel | null>();
   const [viewBounds, setViewBounds] = useState<LatLng[]>();
-  const [mapChildren, setMapChildren] = useState<JSX.Element>()
+  const [mapChildren, setMapChildren] = useState<JSX.Element>();
 
   useEffect(() => {
     let f;
     if (farmId) {
       f = getFarm(farmId);
       if (f) {
-        setFarm(f)
+        setFarm(f);
         const p: Parcel | undefined = f.parcels.find((p) => p.id === parcelId);
         if (p) {
           setParcel(p);
@@ -38,27 +38,33 @@ function Boards() {
     setMapChildren(
       <>
         {farm && (
-          <Marker
-            position={farm.coordinates}
-            key={`${farm.id}-map`}>
+          <Marker position={farm.coordinates} key={`${farm.id}-map`}>
             <Tooltip>{farm.name}</Tooltip>
           </Marker>
         )}
         {parcel && (
           <>
-            <Polygon pathOptions={{ color: 'grey' }} positions={parcel.coordinates}>
+            <Polygon
+              pathOptions={{ color: "grey" }}
+              positions={parcel.coordinates}
+            >
               <Tooltip>{parcel.name}</Tooltip>
             </Polygon>
-            {parcel.boards.length > 0 && parcel.boards.map(b => (
-              <Polygon pathOptions={{ color: 'red' }} positions={b.coordinates} key={b.id}>
-                <Tooltip>{b.name}</Tooltip>
-              </Polygon>
-            ))}
+            {parcel.boards.length > 0 &&
+              parcel.boards.map((b) => (
+                <Polygon
+                  pathOptions={{ color: "red" }}
+                  positions={b.coordinates}
+                  key={b.id}
+                >
+                  <Tooltip>{b.name}</Tooltip>
+                </Polygon>
+              ))}
           </>
         )}
-      </>
+      </>,
     );
-  }, [parcel, farm])
+  }, [parcel, farm]);
 
   return (
     <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
@@ -70,7 +76,7 @@ function Boards() {
               <>
                 <p>{parcel.name}</p>
                 <p>Number of boards {parcel.boards.length}</p>
-                {parcel.boards.map(b => (
+                {parcel.boards.map((b) => (
                   <Card title={b.name} key={`${b.id}-card`}>
                     <p>Number of rows {b.rows.length}</p>
                   </Card>
@@ -81,7 +87,7 @@ function Boards() {
         )}
       </div>
     </BaseContent>
-  )
+  );
 }
 
 export default Boards;
