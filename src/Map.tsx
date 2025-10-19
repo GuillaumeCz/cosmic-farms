@@ -1,4 +1,4 @@
-import { bounds, LatLng, Point } from "leaflet";
+import { bounds, LatLng, LatLngBounds, Point } from "leaflet";
 import { useEffect, type JSX } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
@@ -11,15 +11,15 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
       const c = elts.map((e) => new Point(e.lat, e.lng));
       const { max, min } = bounds(c);
       if (max && min) {
-        const d = [
+        const d = new LatLngBounds(
           new LatLng(max.x + 0.001, max.y + 0.001),
           new LatLng(min.x - 0.001, min.y - 0.001),
-        ];
-        map.fitBounds(d);
+        );
+        map.flyToBounds(d);
       }
     }
-  }, []);
-  return <></>;
+  }, [map, elts]);
+  return null;
 };
 
 function Map({

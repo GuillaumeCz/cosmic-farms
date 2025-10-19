@@ -6,13 +6,15 @@ import { Marker, Polygon, Tooltip } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
 
-import BaseContent from "./BaseContent";
-
-function Parcels() {
+function Parcels({
+  setViewBounds,
+  setMapChildren,
+}: {
+  setViewBounds: (v: LatLng[]) => void;
+  setMapChildren: (v: JSX.Element) => void;
+}) {
   const { farmId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
-  const [viewBounds, setViewBounds] = useState<LatLng[]>();
-  const [mapChildren, setMapChildren] = useState<JSX.Element>();
 
   const navigate = useNavigate();
 
@@ -63,25 +65,23 @@ function Parcels() {
   }, [farm]);
 
   return (
-    <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
-      <>
-        {farm && (
-          <>
-            {farm.name}
-            {farm.parcels.map((p) => (
-              <Card
-                title={p.name}
-                key={p.id}
-                extra={<Link to={`/farms/${farm.id}/parcels/${p.id}`}>+</Link>}
-              >
-                Bla blahh
-                <p>Number of boards {p.boards.length}</p>
-              </Card>
-            ))}
-          </>
-        )}
-      </>
-    </BaseContent>
+    <>
+      {farm && (
+        <>
+          {farm.name}
+          {farm.parcels.map((p) => (
+            <Card
+              title={p.name}
+              key={p.id}
+              extra={<Link to={`/farms/${farm.id}/parcels/${p.id}`}>+</Link>}
+            >
+              Bla blahh
+              <p>Number of boards {p.boards.length}</p>
+            </Card>
+          ))}
+        </>
+      )}
+    </>
   );
 }
 

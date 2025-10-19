@@ -6,14 +6,17 @@ import Card from "antd/es/card/Card";
 import { Marker, Polygon, Tooltip } from "react-leaflet";
 
 import { LatLng } from "leaflet";
-import BaseContent from "./BaseContent";
 
-function Boards() {
+function Boards({
+  setViewBounds,
+  setMapChildren,
+}: {
+  setViewBounds: (v: LatLng[]) => void;
+  setMapChildren: (v: JSX.Element) => void;
+}) {
   const { farmId, parcelId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
   const [parcel, setParcel] = useState<Parcel | null>();
-  const [viewBounds, setViewBounds] = useState<LatLng[]>();
-  const [mapChildren, setMapChildren] = useState<JSX.Element>();
 
   useEffect(() => {
     let f;
@@ -66,26 +69,24 @@ function Boards() {
   }, [parcel, farm]);
 
   return (
-    <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
-      <>
-        {farm && (
-          <>
-            <p>{farm.name}</p>
-            {parcel && (
-              <>
-                <p>{parcel.name}</p>
-                <p>Number of boards {parcel.boards.length}</p>
-                {parcel.boards.map((b) => (
-                  <Card title={b.name} key={`${b.id}-card`}>
-                    <p>Number of rows {b.rows.length}</p>
-                  </Card>
-                ))}
-              </>
-            )}
-          </>
-        )}
-      </>
-    </BaseContent>
+    <>
+      {farm && (
+        <>
+          <p>{farm.name}</p>
+          {parcel && (
+            <>
+              <p>{parcel.name}</p>
+              <p>Number of boards {parcel.boards.length}</p>
+              {parcel.boards.map((b) => (
+                <Card title={b.name} key={`${b.id}-card`}>
+                  <p>Number of rows {b.rows.length}</p>
+                </Card>
+              ))}
+            </>
+          )}
+        </>
+      )}
+    </>
   );
 }
 

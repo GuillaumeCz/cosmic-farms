@@ -6,12 +6,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { defaultFarms } from "./data";
 
-import BaseContent from "./BaseContent";
-
-function Farms() {
+function Farms({
+  setViewBounds,
+  setMapChildren,
+}: {
+  setViewBounds: (v: LatLng[]) => void;
+  setMapChildren: (v: JSX.Element) => void;
+}) {
   const [farms, setFarms] = useState<Farm[]>([]);
-  const [viewBounds, setViewBounds] = useState<LatLng[]>();
-  const [mapChildren, setMapChildren] = useState<JSX.Element>();
 
   const navigate = useNavigate();
 
@@ -38,21 +40,19 @@ function Farms() {
   }, [farms]);
 
   return (
-    <BaseContent viewBounds={viewBounds} mapChildren={mapChildren}>
-      <>
-        {farms &&
-          farms.map((f) => (
-            <Card
-              title={f.name}
-              key={f.id}
-              extra={<Link to={`/farms/${f.id}`}>+</Link>}
-            >
-              <p>{f.owner}</p>
-              <p>Number of parcels: {f.parcels.length}</p>
-            </Card>
-          ))}
-      </>
-    </BaseContent>
+    <>
+      {farms &&
+        farms.map((f) => (
+          <Card
+            title={f.name}
+            key={f.id}
+            extra={<Link to={`/farms/${f.id}`}>+</Link>}
+          >
+            <p>{f.owner}</p>
+            <p>Number of parcels: {f.parcels.length}</p>
+          </Card>
+        ))}
+    </>
   );
 }
 
