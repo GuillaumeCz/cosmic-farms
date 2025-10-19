@@ -34,7 +34,7 @@ function Parcels() {
   }, []);
   return (
     <BaseContent>
-      <div className='parcels-container'>
+      <>
         <div className='parcels-list'>
           {farm && (
             <>
@@ -69,7 +69,7 @@ function Parcels() {
             ))}
           </>}
         </Map>
-      </div >
+      </>
     </BaseContent>
   )
 }

@@ -1,8 +1,3 @@
-.farms-container {
-  display: flex;
-  flex-direction: row;
-}
-
 .farms-list {
   width: 100%;
   margin: 5px;

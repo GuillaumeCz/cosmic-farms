@@ -35,7 +35,7 @@ function Boards() {
   }, [])
   return (
     <BaseContent>
-      <div className="boards-container">
+      <>
         <div className="boards-list">
           {farm && (
             <>
@@ -75,7 +75,7 @@ function Boards() {
             </>
           )}
         </Map>
-      </div>
+      </>
     </BaseContent>
   )
 }

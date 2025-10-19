@@ -24,7 +24,7 @@ function Farms() {
 
   return (
     <BaseContent>
-      <div className='farms-container'>
+      <>
         <div className='farms-list'>
           {farms && farms.map(f => (
             <Card title={f.name} key={f.id} extra={
@@ -45,7 +45,7 @@ function Farms() {
             </Marker>
           ))}
         </Map>
-      </div >
+      </>
     </BaseContent>
   )
 }

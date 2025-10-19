@@ -1,8 +1,3 @@
-.boards-container {
-  display: flex;
-  flex-direction: row;
-}
-
 .boards-list {
   width: 100%;
   margin: 5px;
