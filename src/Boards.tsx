@@ -8,6 +8,7 @@ import { Marker, Polygon, Tooltip } from "react-leaflet";
 
 import './Boards.css';
 import { LatLng } from "leaflet";
+import BaseContent from "./BaseContent";
 
 function Boards() {
   const { farmId, parcelId } = useParams();
@@ -33,47 +34,49 @@ function Boards() {
     }
   }, [])
   return (
-    <div className="boards-container">
-      <div className="boards-list">
-        {farm && (
-          <>
-            <p>{farm.name}</p>
-            {parcel && (
-              <>
-                <p>{parcel.name}</p>
-                <p>Number of boards {parcel.boards.length}</p>
-                {parcel.boards.map(b => (
-                  <Card title={b.name} key={`${b.id}-card`}>
-                    <p>Number of rows {b.rows.length}</p>
-                  </Card>
-                ))}
-              </>
-            )}
-          </>
-        )}
-      </div>
-      <Map viewBounds={viewBounds}>
-        {farm && (
-          <Marker
-            position={farm.coordinates}
-            key={`${farm.id}-map`}>
-            <Tooltip>{farm.name}</Tooltip>
-          </Marker>
-        )}
-        {parcel && (
-          <>
-            <Polygon pathOptions={{ color: 'grey' }} positions={parcel.coordinates}>
-              <Tooltip>{parcel.name}</Tooltip>
-            </Polygon>
-            {parcel.boards.length > 0 && parcel.boards.map(b => (
-              <Polygon pathOptions={{ color: 'red' }} positions={b.coordinates} key={b.id}>
-                <Tooltip>{b.name}</Tooltip>
+    <BaseContent>
+      <div className="boards-container">
+        <div className="boards-list">
+          {farm && (
+            <>
+              <p>{farm.name}</p>
+              {parcel && (
+                <>
+                  <p>{parcel.name}</p>
+                  <p>Number of boards {parcel.boards.length}</p>
+                  {parcel.boards.map(b => (
+                    <Card title={b.name} key={`${b.id}-card`}>
+                      <p>Number of rows {b.rows.length}</p>
+                    </Card>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </div>
+        <Map viewBounds={viewBounds}>
+          {farm && (
+            <Marker
+              position={farm.coordinates}
+              key={`${farm.id}-map`}>
+              <Tooltip>{farm.name}</Tooltip>
+            </Marker>
+          )}
+          {parcel && (
+            <>
+              <Polygon pathOptions={{ color: 'grey' }} positions={parcel.coordinates}>
+                <Tooltip>{parcel.name}</Tooltip>
               </Polygon>
-            ))}
-          </>
-        )}
-      </Map>
-    </div>
+              {parcel.boards.length > 0 && parcel.boards.map(b => (
+                <Polygon pathOptions={{ color: 'red' }} positions={b.coordinates} key={b.id}>
+                  <Tooltip>{b.name}</Tooltip>
+                </Polygon>
+              ))}
+            </>
+          )}
+        </Map>
+      </div>
+    </BaseContent>
   )
 }
 

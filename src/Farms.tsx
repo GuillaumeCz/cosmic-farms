@@ -8,6 +8,7 @@ import { LatLng } from 'leaflet';
 import { defaultFarms } from './data';
 
 import './Farms.css';
+import BaseContent from './BaseContent';
 
 function Farms() {
   const [farms, setFarms] = useState<Farm[]>([])
@@ -22,28 +23,30 @@ function Farms() {
   }, []);
 
   return (
-    <div className='farms-container'>
-      <div className='farms-list'>
-        {farms && farms.map(f => (
-          <Card title={f.name} key={f.id} extra={
-            <Link to={`/farms/${f.id}`}>+</Link>
-          }>
-            <p>{f.owner}</p>
-            <p>Number of parcels: {f.parcels.length}</p>
-          </Card>))
-        }
+    <BaseContent>
+      <div className='farms-container'>
+        <div className='farms-list'>
+          {farms && farms.map(f => (
+            <Card title={f.name} key={f.id} extra={
+              <Link to={`/farms/${f.id}`}>+</Link>
+            }>
+              <p>{f.owner}</p>
+              <p>Number of parcels: {f.parcels.length}</p>
+            </Card>))
+          }
+        </div >
+        <Map viewBounds={viewBounds}>
+          {farms && farms.map(f => (
+            <Marker
+              eventHandlers={{ click: () => navigate(`/farms/${f.id}`) }}
+              position={f.coordinates}
+              key={`${f.id}-map`}>
+              <Tooltip>{f.name}</Tooltip>
+            </Marker>
+          ))}
+        </Map>
       </div >
-      <Map viewBounds={viewBounds}>
-        {farms && farms.map(f => (
-          <Marker
-            eventHandlers={{ click: () => navigate(`/farms/${f.id}`) }}
-            position={f.coordinates}
-            key={`${f.id}-map`}>
-            <Tooltip>{f.name}</Tooltip>
-          </Marker>
-        ))}
-      </Map>
-    </div >
+    </BaseContent>
   )
 }
 
