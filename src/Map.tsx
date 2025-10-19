@@ -1,5 +1,5 @@
 import { bounds, LatLng, Point } from "leaflet";
-import { useEffect } from "react";
+import { useEffect, type JSX } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
 import './Map.css';
@@ -19,7 +19,7 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   return (<></>)
 }
 
-function Map({ viewBounds, children, }: { viewBounds?: LatLng[], children: any }) {
+function Map({ viewBounds, children, }: { viewBounds?: LatLng[], children?: JSX.Element }) {
   return (
     <MapContainer center={[44.3502628, 3.6953171]} zoom={13} id={"map"}>
       {children}
