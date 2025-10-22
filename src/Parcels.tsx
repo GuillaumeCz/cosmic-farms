@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, type JSX, useContext } from "react";
 import { List, Card } from "antd";
 import type { Farm } from "./types";
 import { getFarm } from "./data";
@@ -6,17 +6,19 @@ import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { geometryToLatLng } from "./utils";
+import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
 
 function Parcels({
   setViewBounds,
   setMapChildren,
-  setFarmObject,
 }: {
   setViewBounds: (v: LatLng[]) => void;
   setMapChildren: (v: JSX.Element) => void;
-  setFarmObject: (v: Farm | null) => void;
 }) {
   const { farmId } = useParams();
+  const { setCurrentFarm } = useContext(
+    CurrentFarmContext,
+  ) as CurrentFarmContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
 
   const navigate = useNavigate();
@@ -37,7 +39,12 @@ function Parcels({
   }, []);
 
   useEffect(() => {
-    setFarmObject(farm);
+    if (farm) {
+      setCurrentFarm(farm);
+    }
+  }, [farm]);
+
+  useEffect(() => {
     setMapChildren(
       <>
         {farm && (
@@ -69,9 +76,9 @@ function Parcels({
 
   return (
     <>
+      {!farm && <>Nothing ! </>}
       {farm && (
         <>
-          {farm.name}
           {farm.parcels.map((p) => (
             <Card
               title={p.name}

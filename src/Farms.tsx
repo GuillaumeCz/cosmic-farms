@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, type JSX, useContext } from "react";
 import type { Farm } from "./types";
 import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,17 +6,19 @@ import { LatLng } from "leaflet";
 import { getFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
 import { List, Card } from "antd";
+import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
 
 function Farms({
   setViewBounds,
   setMapChildren,
-  resetFarmObject,
 }: {
   setViewBounds: (v: LatLng[]) => void;
   setMapChildren: (v: JSX.Element) => void;
-  resetFarmObject: () => void;
 }) {
   const [farms, setFarms] = useState<Farm[]>([]);
+  const { setCurrentFarm } = useContext(
+    CurrentFarmContext,
+  ) as CurrentFarmContextType;
 
   const navigate = useNavigate();
 
@@ -26,9 +28,9 @@ function Farms({
     const bounds = fs.map((f) => geoJsonToLatLng(f.coordinates.geometry));
     setViewBounds(bounds);
     setFarms(fs);
+    setCurrentFarm(null);
   }, []);
   useEffect(() => {
-    resetFarmObject();
     setMapChildren(
       <>
         {farms &&

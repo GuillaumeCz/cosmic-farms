@@ -1,4 +1,4 @@
-import { type JSX, useEffect, useState } from "react";
+import { type JSX, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { Farm, Parcel } from "./types";
 import { getFarm } from "./data";
@@ -7,19 +7,21 @@ import { Tooltip, GeoJSON } from "react-leaflet";
 
 import { LatLng } from "leaflet";
 import { geometryToLatLng } from "./utils";
+import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
 
 function Boards({
   setViewBounds,
   setMapChildren,
-  setFarmObject,
 }: {
   setViewBounds: (v: LatLng[]) => void;
   setMapChildren: (v: JSX.Element) => void;
-  setFarmObject: (v: Farm) => void;
 }) {
   const { farmId, parcelId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
   const [parcel, setParcel] = useState<Parcel | null>();
+  const { setCurrentFarm } = useContext(
+    CurrentFarmContext,
+  ) as CurrentFarmContextType;
 
   useEffect(() => {
     let f;
@@ -40,7 +42,12 @@ function Boards({
   }, []);
 
   useEffect(() => {
-    setFarmObject(farm);
+    if (farm) {
+      setCurrentFarm(farm);
+    }
+  }, [farm]);
+
+  useEffect(() => {
     setMapChildren(
       <>
         {farm && (

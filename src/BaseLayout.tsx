@@ -1,23 +1,24 @@
 import { Outlet } from "react-router-dom";
 import type { LatLng } from "leaflet";
-import type { JSX } from "react";
+import { useContext, type JSX } from "react";
 import { Typography } from "antd";
 import BreadCrumb from "./BreadCrumb";
 import Map from "./Map";
-import type { Farm } from "./types";
 
 import "./BaseLayout.css";
+import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
 
 const { Title } = Typography;
 const BaseLayout = ({
   viewBounds,
   mapChildren,
-  farm,
 }: {
   viewBounds?: LatLng[];
   mapChildren?: JSX.Element;
-  farm?: Farm | null;
 }) => {
+  const { currentFarm } = useContext(
+    CurrentFarmContext,
+  ) as CurrentFarmContextType;
   return (
     <>
       <div>
@@ -25,8 +26,8 @@ const BaseLayout = ({
       </div>
       <div>
         <Title>
-          {farm && <>{farm.name}</>}
-          {!farm && <>Cosmic farming !</>}
+          {currentFarm && <>{currentFarm.name}</>}
+          {!currentFarm && <>Cosmic farming !</>}
         </Title>
       </div>
       <div className="container">
