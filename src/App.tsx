@@ -21,7 +21,6 @@ function App() {
       <Header id="header">Cosmic farm !</Header>
       <Layout id="layout">
         <Content id="content">
-          <BreadCrumb />
           <div className="container">
             <div className="content">
               <Routes>
@@ -29,46 +28,61 @@ function App() {
                   path="/"
                   index
                   element={
-                    <Farms
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
+                    <>
+                      <BreadCrumb />
+                      <Farms
+                        setViewBounds={setViewBounds}
+                        setMapChildren={setMapChildren}
+                      />
+                    </>
                   }
                 />
                 <Route
                   path="/farms"
                   element={
-                    <Farms
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
+                    <>
+                      <BreadCrumb />
+                      <Farms
+                        setViewBounds={setViewBounds}
+                        setMapChildren={setMapChildren}
+                      />
+                    </>
                   }
                 />
                 <Route
                   path="/farms/:farmId"
                   element={
-                    <Parcels
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
+                    <>
+                      <BreadCrumb />
+                      <Parcels
+                        setViewBounds={setViewBounds}
+                        setMapChildren={setMapChildren}
+                      />
+                    </>
                   }
                 />
                 <Route
                   path="/farms/:farmId/parcels"
                   element={
-                    <Parcels
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
+                    <>
+                      <BreadCrumb />
+                      <Parcels
+                        setViewBounds={setViewBounds}
+                        setMapChildren={setMapChildren}
+                      />
+                    </>
                   }
                 />
                 <Route
                   path="/farms/:farmId/parcels/:parcelId"
                   element={
-                    <Boards
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
+                    <>
+                      <BreadCrumb />
+                      <Boards
+                        setViewBounds={setViewBounds}
+                        setMapChildren={setMapChildren}
+                      />
+                    </>
                   }
                 />
               </Routes>

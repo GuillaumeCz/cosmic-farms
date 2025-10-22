@@ -11,12 +11,15 @@ function BreadCrumb() {
     const locItems = location.pathname.split("/");
     setItems(
       locItems.map((value, index) => {
-        if (index === 0) return <Link to="/">Home</Link>;
+        if (index === 0) {
+          return <Link to="/">Home</Link>;
+        }
         if (
           index === locItems.length - 1 ||
           !Object.values(params).includes(value)
-        )
+        ) {
           return value;
+        }
 
         return <Link to={locItems.slice(0, index + 1).join("/")}>{value}</Link>;
       }),
