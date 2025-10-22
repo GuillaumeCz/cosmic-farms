@@ -3,9 +3,10 @@ import { useParams } from "react-router-dom";
 import type { Farm, Parcel } from "./types";
 import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
-import { Marker, Polygon, Tooltip } from "react-leaflet";
+import { Tooltip, GeoJSON } from "react-leaflet";
 
 import { LatLng } from "leaflet";
+import { geometryToLatLng } from "./utils";
 
 function Boards({
   setViewBounds,
@@ -27,10 +28,10 @@ function Boards({
         const p: Parcel | undefined = f.parcels.find((p) => p.id === parcelId);
         if (p) {
           setParcel(p);
-          const vb = p.boards
-            .map(({ coordinates }) => coordinates)
+          const bounds = p.boards
+            .map((b) => geometryToLatLng(b.coordinates.geometry))
             .reduce((acc, cur) => [...acc, ...cur], []);
-          setViewBounds(vb);
+          setViewBounds(bounds);
         }
       }
     }
@@ -40,27 +41,24 @@ function Boards({
     setMapChildren(
       <>
         {farm && (
-          <Marker position={farm.coordinates} key={`${farm.id}-map`}>
+          <GeoJSON data={farm.coordinates} key={`${farm.id}-map`}>
             <Tooltip>{farm.name}</Tooltip>
-          </Marker>
+          </GeoJSON>
         )}
         {parcel && (
           <>
-            <Polygon
-              pathOptions={{ color: "grey" }}
-              positions={parcel.coordinates}
-            >
+            <GeoJSON data={parcel.coordinates}>
               <Tooltip>{parcel.name}</Tooltip>
-            </Polygon>
+            </GeoJSON>
             {parcel.boards.length > 0 &&
               parcel.boards.map((b) => (
-                <Polygon
+                <GeoJSON
                   pathOptions={{ color: "red" }}
-                  positions={b.coordinates}
+                  data={b.coordinates}
                   key={b.id}
                 >
                   <Tooltip>{b.name}</Tooltip>
-                </Polygon>
+                </GeoJSON>
               ))}
           </>
         )}
