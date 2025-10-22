@@ -11,9 +11,11 @@ import { geometryToLatLng } from "./utils";
 function Boards({
   setViewBounds,
   setMapChildren,
+  setFarmObject,
 }: {
   setViewBounds: (v: LatLng[]) => void;
   setMapChildren: (v: JSX.Element) => void;
+  setFarmObject: (v: Farm) => void;
 }) {
   const { farmId, parcelId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
@@ -38,6 +40,7 @@ function Boards({
   }, []);
 
   useEffect(() => {
+    setFarmObject(farm);
     setMapChildren(
       <>
         {farm && (
@@ -70,11 +73,8 @@ function Boards({
     <>
       {farm && (
         <>
-          <p>{farm.name}</p>
           {parcel && (
             <>
-              <p>{parcel.name}</p>
-              <p>Number of boards {parcel.boards.length}</p>
               {parcel.boards.map((b) => (
                 <Card title={b.name} key={`${b.id}-card`}>
                   <p>Number of rows {b.rows.length}</p>

@@ -1,18 +1,20 @@
 import { useState, useEffect, type JSX } from "react";
-import Card from "antd/es/card/Card";
 import type { Farm } from "./types";
 import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { getFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
+import { List, Card } from "antd";
 
 function Farms({
   setViewBounds,
   setMapChildren,
+  resetFarmObject,
 }: {
   setViewBounds: (v: LatLng[]) => void;
   setMapChildren: (v: JSX.Element) => void;
+  resetFarmObject: () => void;
 }) {
   const [farms, setFarms] = useState<Farm[]>([]);
 
@@ -26,6 +28,7 @@ function Farms({
     setFarms(fs);
   }, []);
   useEffect(() => {
+    resetFarmObject();
     setMapChildren(
       <>
         {farms &&
@@ -49,10 +52,24 @@ function Farms({
           <Card
             title={f.name}
             key={f.id}
-            extra={<Link to={`/farms/${f.id}`}>+</Link>}
+            extra={<Link to={`/farms/${f.id}`}>Sell all parcels</Link>}
           >
-            <p>{f.owner}</p>
-            <p>Number of parcels: {f.parcels.length}</p>
+            <p>Owner: {f.owner}</p>
+            <List
+              size="small"
+              bordered
+              dataSource={f.parcels}
+              header={<div>Number of parcels: {f.parcels.length}</div>}
+              renderItem={(p) => (
+                <List.Item
+                  actions={[
+                    <Link to={`/farms/${f.id}/parcels/${p.id}`}>See</Link>,
+                  ]}
+                >
+                  {p.name}
+                </List.Item>
+              )}
+            />
           </Card>
         ))}
     </>
