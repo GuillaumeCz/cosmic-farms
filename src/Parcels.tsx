@@ -2,9 +2,10 @@ import { useState, useEffect, type JSX } from "react";
 import Card from "antd/es/card/Card";
 import type { Farm } from "./types";
 import { getFarm } from "./data";
-import { Marker, Polygon, Tooltip } from "react-leaflet";
+import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
+import { geometryToLatLng } from "./utils";
 
 function Parcels({
   setViewBounds,
@@ -25,11 +26,11 @@ function Parcels({
       setFarm(f);
     }
 
-    if (f && f.parcels) {
-      const vb = f.parcels
-        .map(({ coordinates }) => coordinates)
+    if (f && f.parcels.length > 0) {
+      const bounds = f.parcels
+        .map((p) => geometryToLatLng(p.coordinates.geometry))
         .reduce((acc, cur) => [...acc, ...cur], []);
-      setViewBounds(vb);
+      setViewBounds(bounds);
     }
   }, []);
 
@@ -38,25 +39,24 @@ function Parcels({
       <>
         {farm && (
           <>
-            <Marker
+            <GeoJSON
+              data={farm.coordinates}
+              key={`${farm.id}-farm`}
               eventHandlers={{ click: () => navigate(`/farms/${farm.id}`) }}
-              position={farm.coordinates}
-              key={`${farm.id}-map`}
             >
               <Tooltip>{farm.name}</Tooltip>
-            </Marker>
+            </GeoJSON>
             {farm.parcels.length > 0 &&
               farm.parcels.map((p) => (
-                <Polygon
-                  pathOptions={{ color: "red" }}
-                  positions={p.coordinates}
+                <GeoJSON
+                  data={p.coordinates}
                   key={`${farm.id}-${p.id}`}
                   eventHandlers={{
                     click: () => navigate(`/farms/${farm.id}/parcels/${p.id}`),
                   }}
                 >
                   <Tooltip>{p.name}</Tooltip>
-                </Polygon>
+                </GeoJSON>
               ))}
           </>
         )}

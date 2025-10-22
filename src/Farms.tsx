@@ -1,10 +1,11 @@
 import { useState, useEffect, type JSX } from "react";
 import Card from "antd/es/card/Card";
 import type { Farm } from "./types";
-import { Marker, Tooltip } from "react-leaflet";
+import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
-import { defaultFarms } from "./data";
+import { getFarms } from "./data";
+import { geoJsonToLatLng } from "./utils";
 
 function Farms({
   setViewBounds,
@@ -18,22 +19,24 @@ function Farms({
   const navigate = useNavigate();
 
   useEffect(() => {
-    const f = defaultFarms;
-    setViewBounds(f.map(({ coordinates }) => coordinates));
-    setFarms(f);
+    const fs = getFarms();
+
+    const bounds = fs.map((f) => geoJsonToLatLng(f.coordinates.geometry));
+    setViewBounds(bounds);
+    setFarms(fs);
   }, []);
   useEffect(() => {
     setMapChildren(
       <>
         {farms &&
           farms.map((f) => (
-            <Marker
+            <GeoJSON
+              data={f.coordinates}
+              key={`${f.id}-farm`}
               eventHandlers={{ click: () => navigate(`/farms/${f.id}`) }}
-              position={f.coordinates}
-              key={`${f.id}-map`}
             >
               <Tooltip>{f.name}</Tooltip>
-            </Marker>
+            </GeoJSON>
           ))}
       </>,
     );
