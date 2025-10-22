@@ -5,90 +5,86 @@ import { Route, Routes } from "react-router-dom";
 import Farms from "./Farms";
 import Parcels from "./Parcels";
 import Boards from "./Boards";
-import Map from "./Map";
 
 import "./App.css";
-import BreadCrumb from "./BreadCrumb";
+import BaseLayout from "./BaseLayout";
+import type { Farm } from "./types";
 
 const { Header, Content } = Layout;
 
 function App() {
   const [viewBounds, setViewBounds] = useState<LatLng[]>();
   const [mapChildren, setMapChildren] = useState<JSX.Element>();
+  const [farm, setFarm] = useState<Farm | null>();
 
   return (
     <Layout>
       <Header id="header">Cosmic farm !</Header>
       <Layout id="layout">
         <Content id="content">
-          <div className="container">
-            <div className="content">
-              <Routes>
-                <Route
-                  path="/"
-                  index
-                  element={
-                    <>
-                      <BreadCrumb />
-                      <Farms
-                        setViewBounds={setViewBounds}
-                        setMapChildren={setMapChildren}
-                      />
-                    </>
-                  }
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <BaseLayout
+                  farm={farm}
+                  viewBounds={viewBounds}
+                  mapChildren={mapChildren}
                 />
-                <Route
-                  path="/farms"
-                  element={
-                    <>
-                      <BreadCrumb />
-                      <Farms
-                        setViewBounds={setViewBounds}
-                        setMapChildren={setMapChildren}
-                      />
-                    </>
-                  }
-                />
-                <Route
-                  path="/farms/:farmId"
-                  element={
-                    <>
-                      <BreadCrumb />
-                      <Parcels
-                        setViewBounds={setViewBounds}
-                        setMapChildren={setMapChildren}
-                      />
-                    </>
-                  }
-                />
-                <Route
-                  path="/farms/:farmId/parcels"
-                  element={
-                    <>
-                      <BreadCrumb />
-                      <Parcels
-                        setViewBounds={setViewBounds}
-                        setMapChildren={setMapChildren}
-                      />
-                    </>
-                  }
-                />
-                <Route
-                  path="/farms/:farmId/parcels/:parcelId"
-                  element={
-                    <>
-                      <BreadCrumb />
-                      <Boards
-                        setViewBounds={setViewBounds}
-                        setMapChildren={setMapChildren}
-                      />
-                    </>
-                  }
-                />
-              </Routes>
-            </div>
-            <Map viewBounds={viewBounds}>{mapChildren}</Map>
-          </div>
+              }
+            >
+              <Route
+                index
+                element={
+                  <Farms
+                    setViewBounds={setViewBounds}
+                    setMapChildren={setMapChildren}
+                    resetFarmObject={() => setFarm(null)}
+                  />
+                }
+              />
+              <Route
+                path="/farms"
+                element={
+                  <Farms
+                    setViewBounds={setViewBounds}
+                    setMapChildren={setMapChildren}
+                    resetFarmObject={() => setFarm(null)}
+                  />
+                }
+              />
+              <Route
+                path="/farms/:farmId"
+                element={
+                  <Parcels
+                    setViewBounds={setViewBounds}
+                    setMapChildren={setMapChildren}
+                    setFarmObject={setFarm}
+                  />
+                }
+              />
+              <Route
+                path="/farms/:farmId/parcels"
+                element={
+                  <Parcels
+                    setViewBounds={setViewBounds}
+                    setMapChildren={setMapChildren}
+                    setFarmObject={setFarm}
+                  />
+                }
+              />
+              <Route
+                path="/farms/:farmId/parcels/:parcelId"
+                element={
+                  <Boards
+                    setViewBounds={setViewBounds}
+                    setMapChildren={setMapChildren}
+                    setFarmObject={setFarm}
+                  />
+                }
+              />
+            </Route>
+          </Routes>
         </Content>
       </Layout>
     </Layout>

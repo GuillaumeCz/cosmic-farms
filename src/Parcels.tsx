@@ -1,5 +1,5 @@
 import { useState, useEffect, type JSX } from "react";
-import Card from "antd/es/card/Card";
+import { List, Card } from "antd";
 import type { Farm } from "./types";
 import { getFarm } from "./data";
 import { Tooltip, GeoJSON } from "react-leaflet";
@@ -10,9 +10,11 @@ import { geometryToLatLng } from "./utils";
 function Parcels({
   setViewBounds,
   setMapChildren,
+  setFarmObject,
 }: {
   setViewBounds: (v: LatLng[]) => void;
   setMapChildren: (v: JSX.Element) => void;
+  setFarmObject: (v: Farm | null) => void;
 }) {
   const { farmId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
@@ -35,6 +37,7 @@ function Parcels({
   }, []);
 
   useEffect(() => {
+    setFarmObject(farm);
     setMapChildren(
       <>
         {farm && (
@@ -73,10 +76,19 @@ function Parcels({
             <Card
               title={p.name}
               key={p.id}
-              extra={<Link to={`/farms/${farm.id}/parcels/${p.id}`}>+</Link>}
+              extra={
+                <Link to={`/farms/${farm.id}/parcels/${p.id}`}>
+                  See all boards
+                </Link>
+              }
             >
-              Bla blahh
-              <p>Number of boards {p.boards.length}</p>
+              <List
+                size="small"
+                bordered
+                dataSource={p.boards}
+                header={<div>Number of boards: {p.boards.length}</div>}
+                renderItem={(b) => <List.Item>{b.name}</List.Item>}
+              ></List>
             </Card>
           ))}
         </>
