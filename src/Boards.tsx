@@ -1,4 +1,4 @@
-import { type JSX, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { Farm, Parcel } from "./types";
 import { getFarm } from "./data";
@@ -6,23 +6,26 @@ import Card from "antd/es/card/Card";
 import { Tooltip, GeoJSON } from "react-leaflet";
 
 import { LatLng } from "leaflet";
-import { geometryToLatLng } from "./utils";
-import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
+import { geometryToLatLng, lineToLatLng } from "./utils";
+import {
+  CurrentFarmContext,
+  MapContext,
+  type CurrentFarmContextType,
+  type MapContextType,
+} from "./Providers";
 import { List } from "antd";
 
-function Boards({
-  setViewBounds,
-  setMapChildren,
-}: {
-  setViewBounds: (v: LatLng[]) => void;
-  setMapChildren: (v: JSX.Element) => void;
-}) {
+function Boards() {
   const { farmId, parcelId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
   const [parcel, setParcel] = useState<Parcel | null>();
+  const [bounds, setBounds] = useState<LatLng[]>([]);
   const { setCurrentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
+  const { setViewBounds, setMapChildren } = useContext(
+    MapContext,
+  ) as MapContextType;
 
   useEffect(() => {
     let f;
@@ -33,10 +36,11 @@ function Boards({
         const p: Parcel | undefined = f.parcels.find((p) => p.id === parcelId);
         if (p) {
           setParcel(p);
-          const bounds = p.boards
+          const bds = p.boards
             .map((b) => geometryToLatLng(b.coordinates.geometry))
             .reduce((acc, cur) => [...acc, ...cur], []);
-          setViewBounds(bounds);
+          setBounds(bds);
+          setViewBounds(bds);
         }
       }
     }
@@ -92,13 +96,32 @@ function Boards({
           {parcel && (
             <>
               {parcel.boards.map((b) => (
-                <Card title={b.name} key={`${b.id}-card`}>
+                <Card
+                  title={b.name}
+                  key={`${b.id}-card`}
+                  onMouseEnter={() => {
+                    // Didn't yet found an easy way to set the zoom value...
+                    setViewBounds(geometryToLatLng(b.coordinates.geometry));
+                  }}
+                  onMouseLeave={() => {
+                    setViewBounds(bounds);
+                  }}
+                >
                   <List
                     size="small"
                     bordered
                     dataSource={b.rows}
                     header={<div>Number of rows: {b.rows.length}</div>}
-                    renderItem={(r) => <List.Item>{r.name}</List.Item>}
+                    renderItem={(r) => (
+                      <List.Item
+                        onMouseEnter={() => {
+                          setViewBounds(lineToLatLng(r.coordinates.geometry));
+                        }}
+                        onMouseLeave={() => setViewBounds(bounds)}
+                      >
+                        {r.name}
+                      </List.Item>
+                    )}
                   />
                 </Card>
               ))}

@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { List, Card } from "antd";
 import type { Farm } from "./types";
 import { getFarm } from "./data";
@@ -6,20 +6,23 @@ import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { geometryToLatLng } from "./utils";
-import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
+import {
+  CurrentFarmContext,
+  MapContext,
+  type CurrentFarmContextType,
+  type MapContextType,
+} from "./Providers";
 
-function Parcels({
-  setViewBounds,
-  setMapChildren,
-}: {
-  setViewBounds: (v: LatLng[]) => void;
-  setMapChildren: (v: JSX.Element) => void;
-}) {
+function Parcels() {
   const { farmId } = useParams();
   const { setCurrentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
+  const { setViewBounds, setMapChildren } = useContext(
+    MapContext,
+  ) as MapContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
+  const [bounds, setBounds] = useState<LatLng[]>([]);
 
   const navigate = useNavigate();
 
@@ -31,10 +34,11 @@ function Parcels({
     }
 
     if (f && f.parcels.length > 0) {
-      const bounds = f.parcels
+      const bds = f.parcels
         .map((p) => geometryToLatLng(p.coordinates.geometry))
         .reduce((acc, cur) => [...acc, ...cur], []);
-      setViewBounds(bounds);
+      setBounds(bds);
+      setViewBounds(bds);
     }
   }, []);
 
@@ -88,6 +92,10 @@ function Parcels({
                   See all boards
                 </Link>
               }
+              onMouseEnter={() =>
+                setViewBounds(geometryToLatLng(p.coordinates.geometry))
+              }
+              onMouseLeave={() => setViewBounds(bounds)}
             >
               <List
                 size="small"

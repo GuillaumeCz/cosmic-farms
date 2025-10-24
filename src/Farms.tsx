@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import type { Farm } from "./types";
 import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,27 +6,33 @@ import { LatLng } from "leaflet";
 import { getFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
 import { List, Card } from "antd";
-import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
+import {
+  CurrentFarmContext,
+  MapContext,
+  type CurrentFarmContextType,
+  type MapContextType,
+} from "./Providers";
 
-function Farms({
-  setViewBounds,
-  setMapChildren,
-}: {
-  setViewBounds: (v: LatLng[]) => void;
-  setMapChildren: (v: JSX.Element) => void;
-}) {
+function Farms() {
   const [farms, setFarms] = useState<Farm[]>([]);
+  const [bounds, setBounds] = useState<LatLng[]>([]);
   const { setCurrentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
+
+  const { setViewBounds, setMapChildren } = useContext(
+    MapContext,
+  ) as MapContextType;
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fs = getFarms();
+    const bds = fs.map((f) => geoJsonToLatLng(f.coordinates.geometry));
 
-    const bounds = fs.map((f) => geoJsonToLatLng(f.coordinates.geometry));
-    setViewBounds(bounds);
+    setBounds(bds);
+
+    setViewBounds(bds);
     setFarms(fs);
     setCurrentFarm(null);
   }, []);
@@ -52,9 +58,14 @@ function Farms({
       {farms &&
         farms.map((f) => (
           <Card
+            hoverable
             title={f.name}
             key={f.id}
             extra={<Link to={`/farms/${f.id}`}>Sell all parcels</Link>}
+            onMouseEnter={() =>
+              setViewBounds([geoJsonToLatLng(f.coordinates.geometry)])
+            }
+            onMouseLeave={() => setViewBounds(bounds)}
           >
             <p>Owner: {f.owner}</p>
             <List

@@ -13,3 +13,8 @@ export const geometryToLatLng = (shape: any): LatLng[] => {
   const { coordinates } = shape;
   return coordinates[0].map((c: number[]) => new LatLng(c[1], c[0]));
 };
+
+export const lineToLatLng = (line: any): LatLng[] => {
+  const { coordinates } = line;
+  return coordinates.map((c: number[]) => new LatLng(c[1], c[0]));
+};

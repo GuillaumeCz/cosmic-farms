@@ -1,6 +1,4 @@
 import { Layout } from "antd";
-import { type JSX, useState } from "react";
-import { LatLng } from "leaflet";
 import { Route, Routes } from "react-router-dom";
 import Farms from "./Farms";
 import Parcels from "./Parcels";
@@ -13,9 +11,6 @@ import Providers from "./Providers";
 const { Header, Content } = Layout;
 
 function App() {
-  const [viewBounds, setViewBounds] = useState<LatLng[]>();
-  const [mapChildren, setMapChildren] = useState<JSX.Element>();
-
   return (
     <Layout>
       <Header id="header">Cosmic farm !</Header>
@@ -23,59 +18,14 @@ function App() {
         <Content id="content">
           <Providers>
             <Routes>
-              <Route
-                path="/"
-                element={
-                  <BaseLayout
-                    viewBounds={viewBounds}
-                    mapChildren={mapChildren}
-                  />
-                }
-              >
-                <Route
-                  index
-                  element={
-                    <Farms
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
-                  }
-                />
-                <Route
-                  path="/farms"
-                  element={
-                    <Farms
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
-                  }
-                />
-                <Route
-                  path="/farms/:farmId"
-                  element={
-                    <Parcels
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
-                  }
-                />
-                <Route
-                  path="/farms/:farmId/parcels"
-                  element={
-                    <Parcels
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
-                  }
-                />
+              <Route path="/" element={<BaseLayout />}>
+                <Route index element={<Farms />} />
+                <Route path="/farms" element={<Farms />} />
+                <Route path="/farms/:farmId" element={<Parcels />} />
+                <Route path="/farms/:farmId/parcels" element={<Parcels />} />
                 <Route
                   path="/farms/:farmId/parcels/:parcelId"
-                  element={
-                    <Boards
-                      setViewBounds={setViewBounds}
-                      setMapChildren={setMapChildren}
-                    />
-                  }
+                  element={<Boards />}
                 />
               </Route>
             </Routes>
