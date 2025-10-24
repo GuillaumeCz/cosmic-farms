@@ -1,8 +1,9 @@
 import { bounds, LatLng, LatLngBounds, Point } from "leaflet";
-import { useEffect, type JSX } from "react";
+import { useContext, useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
 import "./Map.css";
+import { MapContext, type MapContextType } from "./Providers";
 
 const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   const map = useMap();
@@ -22,13 +23,10 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   return null;
 };
 
-function Map({
-  viewBounds,
-  children,
-}: {
-  viewBounds?: LatLng[];
-  children?: JSX.Element;
-}) {
+function Map() {
+  const { viewBounds, mapChildren: children } = useContext(
+    MapContext,
+  ) as MapContextType;
   return (
     <MapContainer
       center={[44.3502628, 3.6953171]}
