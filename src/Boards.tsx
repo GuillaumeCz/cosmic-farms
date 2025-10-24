@@ -8,6 +8,7 @@ import { Tooltip, GeoJSON } from "react-leaflet";
 import { LatLng } from "leaflet";
 import { geometryToLatLng } from "./utils";
 import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";
+import { List } from "antd";
 
 function Boards({
   setViewBounds,
@@ -62,13 +63,21 @@ function Boards({
             </GeoJSON>
             {parcel.boards.length > 0 &&
               parcel.boards.map((b) => (
-                <GeoJSON
-                  pathOptions={{ color: "red" }}
-                  data={b.coordinates}
-                  key={b.id}
-                >
-                  <Tooltip>{b.name}</Tooltip>
-                </GeoJSON>
+                <div key={b.id + "-boards"}>
+                  <GeoJSON
+                    pathOptions={{ color: "red" }}
+                    data={b.coordinates}
+                    key={b.id}
+                  >
+                    <Tooltip>{b.name}</Tooltip>
+                  </GeoJSON>
+                  {b.rows.length > 0 &&
+                    b.rows.map((r) => (
+                      <GeoJSON data={r.coordinates} key={r.id}>
+                        <Tooltip>{r.name}</Tooltip>
+                      </GeoJSON>
+                    ))}
+                </div>
               ))}
           </>
         )}
@@ -84,7 +93,13 @@ function Boards({
             <>
               {parcel.boards.map((b) => (
                 <Card title={b.name} key={`${b.id}-card`}>
-                  <p>Number of rows {b.rows.length}</p>
+                  <List
+                    size="small"
+                    bordered
+                    dataSource={b.rows}
+                    header={<div>Number of rows: {b.rows.length}</div>}
+                    renderItem={(r) => <List.Item>{r.name}</List.Item>}
+                  />
                 </Card>
               ))}
             </>
