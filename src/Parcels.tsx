@@ -41,7 +41,7 @@ function Parcels() {
 
     if (f && f.parcels.length > 0) {
       const bds = f.parcels
-        .map((p) => geometryToLatLng(p.coordinates.geometry))
+        .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
         .reduce((acc, cur) => [...acc, ...cur], []);
       setBounds(bds);
       setViewBounds(bds);
@@ -73,16 +73,16 @@ function Parcels() {
               <Tooltip>{farm.name}</Tooltip>
             </GeoJSON>
             {farm.parcels.length > 0 &&
-              farm.parcels.map((p) => (
+              farm.parcels.map(({ coordinates, id, name }) => (
                 <GeoJSON
-                  data={p.coordinates}
-                  key={`${farm.id}-${p.id}`}
-                  pathOptions={{ color: eltsIdToColor[p.id] }}
+                  data={coordinates}
+                  key={`${farm.id}-${id}`}
+                  pathOptions={{ color: eltsIdToColor[id] }}
                   eventHandlers={{
-                    click: () => navigate(`/farms/${farm.id}/parcels/${p.id}`),
+                    click: () => navigate(`/farms/${farm.id}/parcels/${id}`),
                   }}
                 >
-                  <Tooltip>{p.name}</Tooltip>
+                  <Tooltip>{name}</Tooltip>
                 </GeoJSON>
               ))}
           </>
@@ -96,35 +96,35 @@ function Parcels() {
       {!farm && <>Nothing ! </>}
       {farm && (
         <>
-          {farm.parcels.map((p) => (
-            <Card
-              title={p.name}
-              key={p.id}
-              extra={
-                <div
-                  className="color"
-                  style={{
-                    background: eltsIdToColor[p.id],
-                  }}
-                ></div>
-              }
-              onMouseEnter={() =>
-                setViewBounds(geometryToLatLng(p.coordinates.geometry))
-              }
-              onMouseLeave={() => setViewBounds(bounds)}
-            >
-              <List
-                size="small"
-                bordered
-                dataSource={p.boards}
-                header={<div>Number of boards: {p.boards.length}</div>}
-                renderItem={(b) => <List.Item>{b.name}</List.Item>}
-              ></List>
-              <Link to={`/farms/${farm.id}/parcels/${p.id}`}>
-                See all boards
-              </Link>
-            </Card>
-          ))}
+          {farm.parcels.map(
+            ({ name, id, boards, coordinates: { geometry } }) => (
+              <Card
+                title={name}
+                key={id}
+                extra={
+                  <div
+                    className="color"
+                    style={{
+                      background: eltsIdToColor[id],
+                    }}
+                  ></div>
+                }
+                onMouseEnter={() => setViewBounds(geometryToLatLng(geometry))}
+                onMouseLeave={() => setViewBounds(bounds)}
+              >
+                <List
+                  size="small"
+                  bordered
+                  dataSource={boards}
+                  header={<div>Number of boards: {boards.length}</div>}
+                  renderItem={(b) => <List.Item>{b.name}</List.Item>}
+                ></List>
+                <Link to={`/farms/${farm.id}/parcels/${id}`}>
+                  See all boards
+                </Link>
+              </Card>
+            ),
+          )}
         </>
       )}
     </>

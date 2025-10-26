@@ -28,7 +28,9 @@ function Farms() {
 
   useEffect(() => {
     const fs = getFarms();
-    const bds = fs.map((f) => geoJsonToLatLng(f.coordinates.geometry));
+    const bds = fs.map(({ coordinates: { geometry } }) =>
+      geoJsonToLatLng(geometry),
+    );
 
     setBounds(bds);
 
@@ -36,17 +38,18 @@ function Farms() {
     setFarms(fs);
     setCurrentFarm(null);
   }, []);
+
   useEffect(() => {
     setMapChildren(
       <>
         {farms &&
-          farms.map((f) => (
+          farms.map(({ coordinates, id, name }) => (
             <GeoJSON
-              data={f.coordinates}
-              key={`${f.id}-farm`}
-              eventHandlers={{ click: () => navigate(`/farms/${f.id}`) }}
+              data={coordinates}
+              key={`${id}-farm`}
+              eventHandlers={{ click: () => navigate(`/farms/${id}`) }}
             >
-              <Tooltip>{f.name}</Tooltip>
+              <Tooltip>{name}</Tooltip>
             </GeoJSON>
           ))}
       </>,
@@ -56,27 +59,25 @@ function Farms() {
   return (
     <>
       {farms &&
-        farms.map((f) => (
+        farms.map(({ name, id, owner, parcels, coordinates: { geometry } }) => (
           <Card
             hoverable
-            title={f.name}
-            key={f.id}
-            extra={<Link to={`/farms/${f.id}`}>Sell all parcels</Link>}
-            onMouseEnter={() =>
-              setViewBounds([geoJsonToLatLng(f.coordinates.geometry)])
-            }
+            title={name}
+            key={id}
+            extra={<Link to={`/farms/${id}`}>Sell all parcels</Link>}
+            onMouseEnter={() => setViewBounds([geoJsonToLatLng(geometry)])}
             onMouseLeave={() => setViewBounds(bounds)}
           >
-            <p>Owner: {f.owner}</p>
+            <p>Owner: {owner}</p>
             <List
               size="small"
               bordered
-              dataSource={f.parcels}
-              header={<div>Number of parcels: {f.parcels.length}</div>}
+              dataSource={parcels}
+              header={<div>Number of parcels: {parcels.length}</div>}
               renderItem={(p) => (
                 <List.Item
                   actions={[
-                    <Link to={`/farms/${f.id}/parcels/${p.id}`}>See</Link>,
+                    <Link to={`/farms/${id}/parcels/${p.id}`}>See</Link>,
                   ]}
                 >
                   {p.name}
