@@ -1,4 +1,4 @@
-import { bounds, LatLng, LatLngBounds, Point } from "leaflet";
+import { LatLng, LatLngBounds } from "leaflet";
 import { useContext, useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
@@ -9,14 +9,20 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   const map = useMap();
   useEffect(() => {
     if (elts) {
-      const c = elts.map((e) => new Point(e.lat, e.lng));
-      const { max, min } = bounds(c);
-      if (max && min) {
-        const d = new LatLngBounds(
-          new LatLng(max.x + 0.001, max.y + 0.001),
-          new LatLng(min.x - 0.001, min.y - 0.001),
+      // TODO: Find a way to properly fit viewBounds when there's 2 points...
+      if (elts.length === 1) {
+        map.flyToBounds(elts[0].toBounds(200));
+      } else {
+        map.flyToBounds(
+          new LatLngBounds(
+            elts
+              .map((e) => {
+                const b = e.toBounds(10);
+                return [b.getNorthWest(), b.getSouthEast()];
+              })
+              .reduce((acc, cur) => [...acc, ...cur], []),
+          ),
         );
-        map.flyToBounds(d);
       }
     }
   }, [map, elts]);
