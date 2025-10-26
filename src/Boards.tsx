@@ -16,6 +16,8 @@ import {
   type MapContextType,
 } from "./Providers";
 
+import "./shared.css";
+
 function Boards() {
   const { farmId, parcelId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
@@ -160,9 +162,6 @@ function Boards() {
                             className="color"
                             style={{
                               background: eltsIdToColor[r.id],
-                              width: "22px",
-                              height: "22px",
-                              borderRadius: "15px",
                             }}
                           ></div>
                         </>
