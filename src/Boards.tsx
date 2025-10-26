@@ -4,6 +4,8 @@ import type { Farm, Parcel } from "./types";
 import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
 import { Tooltip, GeoJSON } from "react-leaflet";
+import ColorHash from "color-hash";
+import { List } from "antd";
 
 import { LatLng } from "leaflet";
 import { geometryToLatLng, lineToLatLng } from "./utils";
@@ -13,13 +15,15 @@ import {
   type CurrentFarmContextType,
   type MapContextType,
 } from "./Providers";
-import { List } from "antd";
 
 function Boards() {
   const { farmId, parcelId } = useParams();
   const [farm, setFarm] = useState<Farm | null>(null);
   const [parcel, setParcel] = useState<Parcel | null>();
   const [bounds, setBounds] = useState<LatLng[]>([]);
+  const [eltsIdToColor, setEltsIdToColor] = useState<{ [key: string]: string }>(
+    {},
+  );
   const { setCurrentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
@@ -27,22 +31,35 @@ function Boards() {
     MapContext,
   ) as MapContextType;
 
+  useEffect(() => {}, [parcel]);
+
   useEffect(() => {
     let f;
     if (farmId) {
       f = getFarm(farmId);
       if (f) {
-        setFarm(f);
         const p: Parcel | undefined = f.parcels.find((p) => p.id === parcelId);
         if (p) {
-          setParcel(p);
           const bds = p.boards
             .map((b) => geometryToLatLng(b.coordinates.geometry))
             .reduce((acc, cur) => [...acc, ...cur], []);
+          const idToColor: { [key: string]: string } = {};
+          const ch = new ColorHash();
+          p.boards.forEach((b) => {
+            idToColor[b.id] = ch.hex(b.id);
+            if (b.rows.length > 0) {
+              b.rows.forEach((r) => {
+                idToColor[r.id] = ch.hex(r.id);
+              });
+            }
+          });
+          setEltsIdToColor(idToColor);
+          setParcel(p);
           setBounds(bds);
           setViewBounds(bds);
         }
       }
+      setFarm(f);
     }
   }, []);
 
@@ -62,14 +79,17 @@ function Boards() {
         )}
         {parcel && (
           <>
-            <GeoJSON data={parcel.coordinates}>
+            <GeoJSON
+              data={parcel.coordinates}
+              pathOptions={{ fillOpacity: 0, color: "grey" }}
+            >
               <Tooltip>{parcel.name}</Tooltip>
             </GeoJSON>
             {parcel.boards.length > 0 &&
               parcel.boards.map((b) => (
                 <div key={b.id + "-boards"}>
                   <GeoJSON
-                    pathOptions={{ color: "red" }}
+                    pathOptions={{ color: eltsIdToColor[b.id] }}
                     data={b.coordinates}
                     key={b.id}
                   >
@@ -77,7 +97,11 @@ function Boards() {
                   </GeoJSON>
                   {b.rows.length > 0 &&
                     b.rows.map((r) => (
-                      <GeoJSON data={r.coordinates} key={r.id}>
+                      <GeoJSON
+                        data={r.coordinates}
+                        key={r.id}
+                        pathOptions={{ color: eltsIdToColor[r.id] }}
+                      >
                         <Tooltip>{r.name}</Tooltip>
                       </GeoJSON>
                     ))}
@@ -97,6 +121,17 @@ function Boards() {
             <>
               {parcel.boards.map((b) => (
                 <Card
+                  extra={
+                    <div
+                      className="color"
+                      style={{
+                        background: eltsIdToColor[b.id],
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "15px",
+                      }}
+                    ></div>
+                  }
                   title={b.name}
                   key={`${b.id}-card`}
                   onMouseEnter={() => {
@@ -119,7 +154,18 @@ function Boards() {
                         }}
                         onMouseLeave={() => setViewBounds(bounds)}
                       >
-                        {r.name}
+                        <>
+                          {r.name}
+                          <div
+                            className="color"
+                            style={{
+                              background: eltsIdToColor[r.id],
+                              width: "22px",
+                              height: "22px",
+                              borderRadius: "15px",
+                            }}
+                          ></div>
+                        </>
                       </List.Item>
                     )}
                   />
