@@ -12,6 +12,9 @@ import {
   type CurrentFarmContextType,
   type MapContextType,
 } from "./Providers";
+import ColorHash from "color-hash";
+
+import "./shared.css";
 
 function Parcels() {
   const { farmId } = useParams();
@@ -23,6 +26,9 @@ function Parcels() {
   ) as MapContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
   const [bounds, setBounds] = useState<LatLng[]>([]);
+  const [eltsIdToColor, setEltsIdToColor] = useState<{ [key: string]: string }>(
+    {},
+  );
 
   const navigate = useNavigate();
 
@@ -39,6 +45,12 @@ function Parcels() {
         .reduce((acc, cur) => [...acc, ...cur], []);
       setBounds(bds);
       setViewBounds(bds);
+      const idToColor: { [key: string]: string } = {};
+      const ch = new ColorHash();
+      f.parcels.forEach(({ id }) => {
+        idToColor[id] = ch.hex(id);
+      });
+      setEltsIdToColor(idToColor);
     }
   }, []);
 
@@ -65,6 +77,7 @@ function Parcels() {
                 <GeoJSON
                   data={p.coordinates}
                   key={`${farm.id}-${p.id}`}
+                  pathOptions={{ color: eltsIdToColor[p.id] }}
                   eventHandlers={{
                     click: () => navigate(`/farms/${farm.id}/parcels/${p.id}`),
                   }}
@@ -88,9 +101,12 @@ function Parcels() {
               title={p.name}
               key={p.id}
               extra={
-                <Link to={`/farms/${farm.id}/parcels/${p.id}`}>
-                  See all boards
-                </Link>
+                <div
+                  className="color"
+                  style={{
+                    background: eltsIdToColor[p.id],
+                  }}
+                ></div>
               }
               onMouseEnter={() =>
                 setViewBounds(geometryToLatLng(p.coordinates.geometry))
@@ -104,6 +120,9 @@ function Parcels() {
                 header={<div>Number of boards: {p.boards.length}</div>}
                 renderItem={(b) => <List.Item>{b.name}</List.Item>}
               ></List>
+              <Link to={`/farms/${farm.id}/parcels/${p.id}`}>
+                See all boards
+              </Link>
             </Card>
           ))}
         </>
