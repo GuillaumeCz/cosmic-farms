@@ -33,24 +33,24 @@ function Boards() {
     MapContext,
   ) as MapContextType;
 
-  useEffect(() => {}, [parcel]);
-
   useEffect(() => {
     let f;
     if (farmId) {
       f = getFarm(farmId);
       if (f) {
-        const p: Parcel | undefined = f.parcels.find((p) => p.id === parcelId);
+        const p: Parcel | undefined = f.parcels.find(
+          ({ id }) => id === parcelId,
+        );
         if (p) {
           const bds = p.boards
-            .map((b) => geometryToLatLng(b.coordinates.geometry))
+            .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
             .reduce((acc, cur) => [...acc, ...cur], []);
           const idToColor: { [key: string]: string } = {};
           const ch = new ColorHash();
-          p.boards.forEach((b) => {
-            idToColor[b.id] = ch.hex(b.id);
-            if (b.rows.length > 0) {
-              b.rows.forEach((r) => {
+          p.boards.forEach(({ id, rows }) => {
+            idToColor[id] = ch.hex(id);
+            if (rows.length > 0) {
+              rows.forEach((r) => {
                 idToColor[r.id] = ch.hex(r.id);
               });
             }
@@ -88,17 +88,17 @@ function Boards() {
               <Tooltip>{parcel.name}</Tooltip>
             </GeoJSON>
             {parcel.boards.length > 0 &&
-              parcel.boards.map((b) => (
-                <div key={b.id + "-boards"}>
+              parcel.boards.map(({ id, coordinates, name, rows }) => (
+                <div key={id + "-boards"}>
                   <GeoJSON
-                    pathOptions={{ color: eltsIdToColor[b.id] }}
-                    data={b.coordinates}
-                    key={b.id}
+                    pathOptions={{ color: eltsIdToColor[id] }}
+                    data={coordinates}
+                    key={id}
                   >
-                    <Tooltip>{b.name}</Tooltip>
+                    <Tooltip>{name}</Tooltip>
                   </GeoJSON>
-                  {b.rows.length > 0 &&
-                    b.rows.map((r) => (
+                  {rows.length > 0 &&
+                    rows.map((r) => (
                       <GeoJSON
                         data={r.coordinates}
                         key={r.id}
@@ -121,55 +121,57 @@ function Boards() {
         <>
           {parcel && (
             <>
-              {parcel.boards.map((b) => (
-                <Card
-                  extra={
-                    <div
-                      className="color"
-                      style={{
-                        background: eltsIdToColor[b.id],
-                        width: "22px",
-                        height: "22px",
-                        borderRadius: "15px",
-                      }}
-                    ></div>
-                  }
-                  title={b.name}
-                  key={`${b.id}-card`}
-                  onMouseEnter={() => {
-                    // Didn't yet found an easy way to set the zoom value...
-                    setViewBounds(geometryToLatLng(b.coordinates.geometry));
-                  }}
-                  onMouseLeave={() => {
-                    setViewBounds(bounds);
-                  }}
-                >
-                  <List
-                    size="small"
-                    bordered
-                    dataSource={b.rows}
-                    header={<div>Number of rows: {b.rows.length}</div>}
-                    renderItem={(r) => (
-                      <List.Item
-                        onMouseEnter={() => {
-                          setViewBounds(lineToLatLng(r.coordinates.geometry));
+              {parcel.boards.map(
+                ({ id, name, rows, coordinates: { geometry } }) => (
+                  <Card
+                    extra={
+                      <div
+                        className="color"
+                        style={{
+                          background: eltsIdToColor[id],
+                          width: "22px",
+                          height: "22px",
+                          borderRadius: "15px",
                         }}
-                        onMouseLeave={() => setViewBounds(bounds)}
-                      >
-                        <>
-                          {r.name}
-                          <div
-                            className="color"
-                            style={{
-                              background: eltsIdToColor[r.id],
-                            }}
-                          ></div>
-                        </>
-                      </List.Item>
-                    )}
-                  />
-                </Card>
-              ))}
+                      ></div>
+                    }
+                    title={name}
+                    key={`${id}-card`}
+                    onMouseEnter={() => {
+                      // Didn't yet found an easy way to set the zoom value...
+                      setViewBounds(geometryToLatLng(geometry));
+                    }}
+                    onMouseLeave={() => {
+                      setViewBounds(bounds);
+                    }}
+                  >
+                    <List
+                      size="small"
+                      bordered
+                      dataSource={rows}
+                      header={<div>Number of rows: {rows.length}</div>}
+                      renderItem={(r) => (
+                        <List.Item
+                          onMouseEnter={() => {
+                            setViewBounds(lineToLatLng(r.coordinates.geometry));
+                          }}
+                          onMouseLeave={() => setViewBounds(bounds)}
+                        >
+                          <>
+                            {r.name}
+                            <div
+                              className="color"
+                              style={{
+                                background: eltsIdToColor[r.id],
+                              }}
+                            ></div>
+                          </>
+                        </List.Item>
+                      )}
+                    />
+                  </Card>
+                ),
+              )}
             </>
           )}
         </>
