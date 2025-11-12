@@ -26,9 +26,7 @@ function Parcels() {
   ) as MapContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
   const [bounds, setBounds] = useState<LatLng[]>([]);
-  const [eltsIdToColor, setEltsIdToColor] = useState<{ [key: string]: string }>(
-    {},
-  );
+  const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -45,12 +43,8 @@ function Parcels() {
         .reduce((acc, cur) => [...acc, ...cur], []);
       setBounds(bds);
       setViewBounds(bds);
-      const idToColor: { [key: string]: string } = {};
       const ch = new ColorHash();
-      f.parcels.forEach(({ id }) => {
-        idToColor[id] = ch.hex(id);
-      });
-      setEltsIdToColor(idToColor);
+      f.parcels = f.parcels.map((p) => ({ ...p, color: ch.hex(p.id) }));
     }
   }, []);
 
@@ -73,11 +67,11 @@ function Parcels() {
               <Tooltip>{farm.name}</Tooltip>
             </GeoJSON>
             {farm.parcels.length > 0 &&
-              farm.parcels.map(({ coordinates, id, name }) => (
+              farm.parcels.map(({ coordinates, id, name, color }) => (
                 <GeoJSON
                   data={coordinates}
                   key={`${farm.id}-${id}`}
-                  pathOptions={{ color: eltsIdToColor[id] }}
+                  pathOptions={{ color, weight: selectedGeomId === id ? 7 : 3 }}
                   eventHandlers={{
                     click: () => navigate(`/farms/${farm.id}/parcels/${id}`),
                   }}
@@ -89,7 +83,7 @@ function Parcels() {
         )}
       </>,
     );
-  }, [farm]);
+  }, [farm, selectedGeomId]);
 
   return (
     <>
@@ -97,7 +91,7 @@ function Parcels() {
       {farm && (
         <>
           {farm.parcels.map(
-            ({ name, id, boards, coordinates: { geometry } }) => (
+            ({ name, id, boards, coordinates: { geometry }, color }) => (
               <Card
                 title={name}
                 key={id}
@@ -105,12 +99,18 @@ function Parcels() {
                   <div
                     className="color"
                     style={{
-                      background: eltsIdToColor[id],
+                      background: color,
                     }}
                   ></div>
                 }
-                onMouseEnter={() => setViewBounds(geometryToLatLng(geometry))}
-                onMouseLeave={() => setViewBounds(bounds)}
+                onMouseEnter={() => {
+                  setSelectedGeomId(id);
+                  setViewBounds(geometryToLatLng(geometry));
+                }}
+                onMouseLeave={() => {
+                  setSelectedGeomId(null);
+                  setViewBounds(bounds);
+                }}
               >
                 <List
                   size="small"

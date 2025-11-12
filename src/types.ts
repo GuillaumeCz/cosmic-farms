@@ -1,30 +1,24 @@
 import type { Feature, Point, LineString, Polygon } from "geojson";
 
-export interface Row {
+interface GeoElement {
   id: string;
   name: string;
   coordinates: Feature;
+  color?: string;
 }
 
-export interface Board {
-  id: string;
-  name: string;
-  coordinates: Feature;
+export interface Row extends GeoElement {}
+
+export interface Board extends GeoElement {
   rows: Row[];
 }
 
-export interface Parcel {
-  id: string;
-  name: string;
-  coordinates: Feature;
+export interface Parcel extends GeoElement {
   boards: Board[];
 }
 
-export interface Farm {
-  id: string;
-  name: string;
+export interface Farm extends GeoElement {
   owner: string;
-  coordinates: Feature;
   parcels: Parcel[];
 }
 

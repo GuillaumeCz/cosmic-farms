@@ -23,9 +23,7 @@ function Boards() {
   const [farm, setFarm] = useState<Farm | null>(null);
   const [parcel, setParcel] = useState<Parcel | null>();
   const [bounds, setBounds] = useState<LatLng[]>([]);
-  const [eltsIdToColor, setEltsIdToColor] = useState<{ [key: string]: string }>(
-    {},
-  );
+  const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
   const { setCurrentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
@@ -45,17 +43,12 @@ function Boards() {
           const bds = p.boards
             .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
             .reduce((acc, cur) => [...acc, ...cur], []);
-          const idToColor: { [key: string]: string } = {};
           const ch = new ColorHash();
-          p.boards.forEach(({ id, rows }) => {
-            idToColor[id] = ch.hex(id);
-            if (rows.length > 0) {
-              rows.forEach((r) => {
-                idToColor[r.id] = ch.hex(r.id);
-              });
-            }
-          });
-          setEltsIdToColor(idToColor);
+          p.boards = p.boards.map((b) => ({
+            ...b,
+            color: ch.hex(b.id),
+            rows: b.rows.map((r) => ({ ...r, color: ch.hex(r.id) })),
+          }));
           setParcel(p);
           setBounds(bds);
           setViewBounds(bds);
@@ -88,12 +81,19 @@ function Boards() {
               <Tooltip>{parcel.name}</Tooltip>
             </GeoJSON>
             {parcel.boards.length > 0 &&
-              parcel.boards.map(({ id, coordinates, name, rows }) => (
+              parcel.boards.map(({ id, coordinates, name, rows, color }) => (
                 <div key={id + "-boards"}>
                   <GeoJSON
-                    pathOptions={{ color: eltsIdToColor[id] }}
+                    pathOptions={{
+                      color,
+                      weight: selectedGeomId === id ? 7 : 3,
+                    }}
                     data={coordinates}
                     key={id}
+                    eventHandlers={{
+                      mouseover: () => setSelectedGeomId(id),
+                      mouseout: () => setSelectedGeomId(null),
+                    }}
                   >
                     <Tooltip>{name}</Tooltip>
                   </GeoJSON>
@@ -102,7 +102,14 @@ function Boards() {
                       <GeoJSON
                         data={r.coordinates}
                         key={r.id}
-                        pathOptions={{ color: eltsIdToColor[r.id] }}
+                        pathOptions={{
+                          color: r.color,
+                          weight: selectedGeomId === r.id ? 7 : 3,
+                        }}
+                        eventHandlers={{
+                          mouseover: () => setSelectedGeomId(r.id),
+                          mouseout: () => setSelectedGeomId(null),
+                        }}
                       >
                         <Tooltip>{r.name}</Tooltip>
                       </GeoJSON>
@@ -113,7 +120,7 @@ function Boards() {
         )}
       </>,
     );
-  }, [parcel, farm]);
+  }, [parcel, farm, selectedGeomId]);
 
   return (
     <>
@@ -122,26 +129,36 @@ function Boards() {
           {parcel && (
             <>
               {parcel.boards.map(
-                ({ id, name, rows, coordinates: { geometry } }) => (
+                ({ id, name, rows, coordinates: { geometry }, color }) => (
                   <Card
                     extra={
                       <div
                         className="color"
                         style={{
-                          background: eltsIdToColor[id],
+                          background: color,
                           width: "22px",
                           height: "22px",
                           borderRadius: "15px",
                         }}
                       ></div>
                     }
-                    title={name}
+                    title={
+                      <div
+                        style={{
+                          fontWeight: selectedGeomId === id ? "bold" : "normal",
+                        }}
+                      >
+                        {name}
+                      </div>
+                    }
                     key={`${id}-card`}
                     onMouseEnter={() => {
+                      setSelectedGeomId(id);
                       // Didn't yet found an easy way to set the zoom value...
                       setViewBounds(geometryToLatLng(geometry));
                     }}
                     onMouseLeave={() => {
+                      setSelectedGeomId(null);
                       setViewBounds(bounds);
                     }}
                   >
@@ -153,16 +170,27 @@ function Boards() {
                       renderItem={(r) => (
                         <List.Item
                           onMouseEnter={() => {
+                            setSelectedGeomId(r.id);
                             setViewBounds(lineToLatLng(r.coordinates.geometry));
                           }}
-                          onMouseLeave={() => setViewBounds(bounds)}
+                          onMouseLeave={() => {
+                            setSelectedGeomId(null);
+                            setViewBounds(bounds);
+                          }}
                         >
                           <>
-                            {r.name}
+                            <div
+                              style={{
+                                fontWeight:
+                                  selectedGeomId === r.id ? "bold" : "normal",
+                              }}
+                            >
+                              {r.name}
+                            </div>
                             <div
                               className="color"
                               style={{
-                                background: eltsIdToColor[r.id],
+                                background: r.color,
                               }}
                             ></div>
                           </>
