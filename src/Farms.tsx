@@ -6,6 +6,7 @@ import { LatLng } from "leaflet";
 import { getFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
 import { List, Card } from "antd";
+import L from "leaflet";
 import {
   CurrentFarmContext,
   MapContext,
@@ -43,11 +44,13 @@ function Farms() {
     setMapChildren(
       <>
         {farms &&
-          farms.map(({ coordinates, id, name }) => (
+          farms.map(({ coordinates, id, name, color }) => (
             <GeoJSON
               data={coordinates}
               key={`${id}-farm`}
               eventHandlers={{ click: () => navigate(`/farms/${id}`) }}
+              pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
+              pathOptions={{ color }}
             >
               <Tooltip>{name}</Tooltip>
             </GeoJSON>
@@ -59,33 +62,38 @@ function Farms() {
   return (
     <>
       {farms &&
-        farms.map(({ name, id, owner, parcels, coordinates: { geometry } }) => (
-          <Card
-            hoverable
-            title={name}
-            key={id}
-            extra={<Link to={`/farms/${id}`}>Sell all parcels</Link>}
-            onMouseEnter={() => setViewBounds([geoJsonToLatLng(geometry)])}
-            onMouseLeave={() => setViewBounds(bounds)}
-          >
-            <p>Owner: {owner}</p>
-            <List
-              size="small"
-              bordered
-              dataSource={parcels}
-              header={<div>Number of parcels: {parcels.length}</div>}
-              renderItem={(p) => (
-                <List.Item
-                  actions={[
-                    <Link to={`/farms/${id}/parcels/${p.id}`}>See</Link>,
-                  ]}
-                >
-                  {p.name}
-                </List.Item>
-              )}
-            />
-          </Card>
-        ))}
+        farms.map(
+          ({ name, id, owner, parcels, coordinates: { geometry }, color }) => (
+            <Card
+              hoverable
+              title={name}
+              key={id}
+              extra={
+                <div className="color" style={{ background: color }}></div>
+              }
+              onMouseEnter={() => setViewBounds([geoJsonToLatLng(geometry)])}
+              onMouseLeave={() => setViewBounds(bounds)}
+            >
+              <p>Owner: {owner}</p>
+              <List
+                size="small"
+                bordered
+                dataSource={parcels}
+                header={<div>Number of parcels: {parcels.length}</div>}
+                renderItem={(p) => (
+                  <List.Item
+                    actions={[
+                      <Link to={`/farms/${id}/parcels/${p.id}`}>See</Link>,
+                    ]}
+                  >
+                    {p.name}
+                  </List.Item>
+                )}
+              />
+              <Link to={`/farms/${id}`}>Sell all parcels</Link>
+            </Card>
+          ),
+        )}
     </>
   );
 }

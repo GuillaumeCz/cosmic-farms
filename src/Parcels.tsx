@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { List, Card } from "antd";
-import type { Farm } from "./types";
+import { type Farm } from "./types";
 import { getFarm } from "./data";
 import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -12,13 +12,12 @@ import {
   type CurrentFarmContextType,
   type MapContextType,
 } from "./Providers";
-import ColorHash from "color-hash";
 
 import "./shared.css";
 
 function Parcels() {
   const { farmId } = useParams();
-  const { setCurrentFarm } = useContext(
+  const { setCurrentFarm, currentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
   const { setViewBounds, setMapChildren } = useContext(
@@ -32,9 +31,17 @@ function Parcels() {
 
   useEffect(() => {
     let f;
-    if (farmId) {
-      f = getFarm(farmId);
-      setFarm(f);
+    if (currentFarm === null) {
+      if (farmId) {
+        f = getFarm(farmId);
+        setFarm(f);
+        setCurrentFarm(f);
+      }
+    } else {
+      if (farmId === currentFarm.id) {
+        f = currentFarm;
+        setFarm(f);
+      }
     }
 
     if (f && f.parcels.length > 0) {
@@ -43,16 +50,8 @@ function Parcels() {
         .reduce((acc, cur) => [...acc, ...cur], []);
       setBounds(bds);
       setViewBounds(bds);
-      const ch = new ColorHash();
-      f.parcels = f.parcels.map((p) => ({ ...p, color: ch.hex(p.id) }));
     }
   }, []);
-
-  useEffect(() => {
-    if (farm) {
-      setCurrentFarm(farm);
-    }
-  }, [farm]);
 
   useEffect(() => {
     setMapChildren(

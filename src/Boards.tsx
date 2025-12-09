@@ -4,7 +4,6 @@ import type { Farm, Parcel } from "./types";
 import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
 import { Tooltip, GeoJSON } from "react-leaflet";
-import ColorHash from "color-hash";
 import { List } from "antd";
 import L from "leaflet";
 
@@ -25,7 +24,7 @@ function Boards() {
   const [parcel, setParcel] = useState<Parcel | null>();
   const [bounds, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
-  const { setCurrentFarm } = useContext(
+  const { setCurrentFarm, currentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
   const { setViewBounds, setMapChildren } = useContext(
@@ -34,36 +33,30 @@ function Boards() {
 
   useEffect(() => {
     let f;
-    if (farmId) {
-      f = getFarm(farmId);
-      if (f) {
-        const p: Parcel | undefined = f.parcels.find(
-          ({ id }) => id === parcelId,
-        );
-        if (p) {
-          const bds = p.boards
-            .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
-            .reduce((acc, cur) => [...acc, ...cur], []);
-          const ch = new ColorHash();
-          p.boards = p.boards.map((b) => ({
-            ...b,
-            color: ch.hex(b.id),
-            rows: b.rows.map((r) => ({ ...r, color: ch.hex(r.id) })),
-          }));
-          setParcel(p);
-          setBounds(bds);
-          setViewBounds(bds);
-        }
+    if (currentFarm === null) {
+      if (farmId) {
+        f = getFarm(farmId);
+        setCurrentFarm(f);
       }
-      setFarm(f);
+    } else {
+      if (farmId === currentFarm.id) {
+        f = currentFarm;
+        setFarm(f);
+      }
+    }
+
+    if (f) {
+      const p: Parcel | undefined = f.parcels.find(({ id }) => id === parcelId);
+      if (p) {
+        const bds = p.boards
+          .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
+          .reduce((acc, cur) => [...acc, ...cur], []);
+        setParcel(p);
+        setBounds(bds);
+        setViewBounds(bds);
+      }
     }
   }, []);
-
-  useEffect(() => {
-    if (farm) {
-      setCurrentFarm(farm);
-    }
-  }, [farm]);
 
   useEffect(() => {
     setMapChildren(

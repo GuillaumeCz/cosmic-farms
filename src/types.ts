@@ -1,6 +1,6 @@
 import type { Feature, Point, LineString, Polygon } from "geojson";
 
-interface GeoElement {
+export interface GeoElement {
   id: string;
   name: string;
   coordinates: Feature;
