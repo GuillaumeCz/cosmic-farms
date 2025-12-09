@@ -18,3 +18,8 @@ export const lineToLatLng = (line: any): LatLng[] => {
   const { coordinates } = line;
   return coordinates.map((c: number[]) => new LatLng(c[1], c[0]));
 };
+
+export const pointToLatLng = (point: any): LatLng[] => {
+  const { coordinates } = point;
+  return [new LatLng(coordinates[1], coordinates[0])];
+};

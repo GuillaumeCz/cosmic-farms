@@ -167,6 +167,21 @@
               },
               "rows": [
                 {
+                  "id": "642ac536-e9a8-4780-82f8-f62086b294d5",
+                  "name": "Plant de tomate x",
+                  "coordinates": {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                      "coordinates": [
+                        3.6981872255401242,
+                        44.34913491106269
+                      ],
+                      "type": "Point"
+                    }
+                  }
+                },
+                {
                   "id": "7637cf6e-3d60-4795-86a4-66f0782f89c2",
                   "name": "Carottes jaunes",
                   "coordinates": {

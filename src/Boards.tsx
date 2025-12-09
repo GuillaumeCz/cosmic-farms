@@ -6,9 +6,10 @@ import Card from "antd/es/card/Card";
 import { Tooltip, GeoJSON } from "react-leaflet";
 import ColorHash from "color-hash";
 import { List } from "antd";
+import L from "leaflet";
 
 import { LatLng } from "leaflet";
-import { geometryToLatLng, lineToLatLng } from "./utils";
+import { geometryToLatLng, lineToLatLng, pointToLatLng } from "./utils";
 import {
   CurrentFarmContext,
   MapContext,
@@ -110,6 +111,9 @@ function Boards() {
                           mouseover: () => setSelectedGeomId(r.id),
                           mouseout: () => setSelectedGeomId(null),
                         }}
+                        pointToLayer={(_, pos) =>
+                          L.circleMarker(pos, { radius: 5 })
+                        }
                       >
                         <Tooltip>{r.name}</Tooltip>
                       </GeoJSON>
@@ -171,7 +175,11 @@ function Boards() {
                         <List.Item
                           onMouseEnter={() => {
                             setSelectedGeomId(r.id);
-                            setViewBounds(lineToLatLng(r.coordinates.geometry));
+                            setViewBounds(
+                              r.coordinates.geometry.type === "Point"
+                                ? pointToLatLng(r.coordinates.geometry)
+                                : lineToLatLng(r.coordinates.geometry),
+                            );
                           }}
                           onMouseLeave={() => {
                             setSelectedGeomId(null);
