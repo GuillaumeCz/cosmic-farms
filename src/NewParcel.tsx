@@ -19,6 +19,8 @@ function NewParcel() {
   const [points, setPoints] = useState<LatLng[]>([]);
   const [isEditing, setIsEditing] = useState<boolean>(true);
   const [isValidPolygon, setIsValidPolygon] = useState<boolean>(false);
+  const values = Form.useWatch([], form);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
   const MarkerAdd = () => {
     useMapEvents({
@@ -108,8 +110,15 @@ function NewParcel() {
     );
   }, [farm, points]);
 
+  useEffect(() => {
+    form
+      .validateFields({ validateOnly: true })
+      .then(() => setIsFormValid(true))
+      .catch(() => setIsFormValid(false));
+  }, [form, values]);
+
   const onFinish = (v: { name: string }) => {
-    if (farmId && isValidPolygon) {
+    if (farmId) {
       createParcel(farmId, { ...v, position: points });
       navigate(`/farms/${farmId}`);
     }
@@ -155,7 +164,11 @@ function NewParcel() {
           <Input />
         </Form.Item>
         <Form.Item label={null}>
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            htmlType="submit"
+            disabled={!isValidPolygon || !isFormValid}
+          >
             Submit
           </Button>
         </Form.Item>
