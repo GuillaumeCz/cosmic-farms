@@ -1,4 +1,4 @@
-import { LatLng, LatLngBounds } from "leaflet";
+import { LatLng, LatLngBounds, type LatLngExpression } from "leaflet";
 import { useContext, useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
@@ -29,25 +29,28 @@ const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   return null;
 };
 
-function Map() {
+const Map = ({
+  center = [44.3502628, 3.6953171],
+  maxZoom = 23,
+  zoom = 13,
+}: {
+  center?: LatLngExpression;
+  maxZoom?: number;
+  zoom?: number;
+}) => {
   const { viewBounds, mapChildren: children } = useContext(
     MapContext,
   ) as MapContextType;
   return (
-    <MapContainer
-      center={[44.3502628, 3.6953171]}
-      maxZoom={23}
-      zoom={13}
-      id={"map"}
-    >
+    <MapContainer center={center} maxZoom={maxZoom} zoom={zoom} id={"map"}>
       {children}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <ViewBounds elts={viewBounds} />
+      {viewBounds && <ViewBounds elts={viewBounds} />}
     </MapContainer>
   );
-}
+};
 
 export default Map;

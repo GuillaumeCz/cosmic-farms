@@ -48,12 +48,16 @@ function Boards() {
     if (f) {
       const p: Parcel | undefined = f.parcels.find(({ id }) => id === parcelId);
       if (p) {
-        const bds = p.boards
-          .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
-          .reduce((acc, cur) => [...acc, ...cur], []);
+        if (p.boards.length !== 0) {
+          const bds = p.boards
+            .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
+            .reduce((acc, cur) => [...acc, ...cur], []);
+          setBounds(bds);
+          setViewBounds(bds);
+        }
         setParcel(p);
-        setBounds(bds);
-        setViewBounds(bds);
+      } else {
+        console.log("parcelId unknown");
       }
     }
   }, []);

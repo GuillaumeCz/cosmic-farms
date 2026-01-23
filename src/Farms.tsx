@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { getFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
-import { List, Card } from "antd";
+import { List, Card, Button } from "antd";
 import L from "leaflet";
 import {
   CurrentFarmContext,
@@ -61,6 +61,13 @@ function Farms() {
 
   return (
     <>
+      <Button
+        type="primary"
+        size="large"
+        onClick={() => navigate("/farms/new")}
+      >
+        New Farm
+      </Button>
       {farms &&
         farms.map(
           ({ name, id, owner, parcels, coordinates: { geometry }, color }) => (
@@ -90,6 +97,10 @@ function Farms() {
                   </List.Item>
                 )}
               />
+
+              <Button onClick={() => navigate(`/farms/${id}/new`)}>
+                New parcel
+              </Button>
               <Link to={`/farms/${id}`}>Sell all parcels</Link>
             </Card>
           ),

@@ -14,6 +14,7 @@ import {
 } from "./Providers";
 
 import "./shared.css";
+import { Button } from "antd/es/radio";
 
 function Parcels() {
   const { farmId } = useParams();
@@ -34,8 +35,10 @@ function Parcels() {
     if (currentFarm === null) {
       if (farmId) {
         f = getFarm(farmId);
-        setFarm(f);
-        setCurrentFarm(f);
+        if (f) {
+          setFarm(f);
+          setCurrentFarm(f);
+        }
       }
     } else {
       if (farmId === currentFarm.id) {
@@ -89,6 +92,9 @@ function Parcels() {
       {!farm && <>Nothing ! </>}
       {farm && (
         <>
+          <Button onClick={() => navigate(`/farms/${farm.id}/new`)}>
+            New parcel
+          </Button>
           {farm.parcels.map(
             ({ name, id, boards, coordinates: { geometry }, color }) => (
               <Card
