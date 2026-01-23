@@ -13,6 +13,8 @@ function NewFarm() {
   ) as MapContextType;
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const values = Form.useWatch([], form);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
   const MarkerAdd = () => {
     useMapEvents({
@@ -41,6 +43,13 @@ function NewFarm() {
     );
   }, [farmPosition]);
 
+  useEffect(() => {
+    form
+      .validateFields({ validateOnly: true })
+      .then(() => setIsFormValid(true))
+      .catch(() => setIsFormValid(false));
+  }, [form, values]);
+
   const onFinish = (v: { owner: string; name: string }) => {
     if (farmPosition) {
       createFarm({ ...v, position: farmPosition });
@@ -63,7 +72,11 @@ function NewFarm() {
         <Input />
       </Form.Item>
       <Form.Item label={null}>
-        <Button type="primary" htmlType="submit" disabled={!farmPosition}>
+        <Button
+          type="primary"
+          htmlType="submit"
+          disabled={!farmPosition || !isFormValid}
+        >
           Submit
         </Button>
       </Form.Item>
