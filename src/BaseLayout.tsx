@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useContext } from "react";
 import { Typography } from "antd";
 import BreadCrumb from "./BreadCrumb";
-import Map from "./Map";
+import Map from "./map/Map";
 
 import "./BaseLayout.css";
 import { CurrentFarmContext, type CurrentFarmContextType } from "./Providers";

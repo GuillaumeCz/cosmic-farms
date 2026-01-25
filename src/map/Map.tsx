@@ -3,7 +3,7 @@ import { useContext, useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 
 import "./Map.css";
-import { MapContext, type MapContextType } from "./Providers";
+import { MapContext, type MapContextType } from "../Providers";
 
 const ViewBounds = ({ elts }: { elts?: LatLng[] }) => {
   const map = useMap();
