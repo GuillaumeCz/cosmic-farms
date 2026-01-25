@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext } from "react";
-import { List, Card } from "antd";
+import { List, Card, Button } from "antd";
 import { type Farm } from "./types";
 import { getFarm } from "./data";
-import { Tooltip, GeoJSON } from "react-leaflet";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { geometryToLatLng } from "./utils";
@@ -14,16 +13,15 @@ import {
 } from "./Providers";
 
 import "./shared.css";
-import { Button } from "antd/es/radio";
+import FarmElts from "./map/FarmElts";
+import ParcelElts from "./map/ParcelElts";
 
 function Parcels() {
   const { farmId } = useParams();
   const { setCurrentFarm, currentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
-  const { setViewBounds, setMapChildren } = useContext(
-    MapContext,
-  ) as MapContextType;
+  const { setViewBounds } = useContext(MapContext) as MapContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
   const [bounds, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
@@ -56,42 +54,19 @@ function Parcels() {
     }
   }, []);
 
-  useEffect(() => {
-    setMapChildren(
-      <>
-        {farm && (
-          <>
-            <GeoJSON
-              data={farm.coordinates}
-              key={`${farm.id}-farm`}
-              eventHandlers={{ click: () => navigate(`/farms/${farm.id}`) }}
-            >
-              <Tooltip>{farm.name}</Tooltip>
-            </GeoJSON>
-            {farm.parcels.length > 0 &&
-              farm.parcels.map(({ coordinates, id, name, color }) => (
-                <GeoJSON
-                  data={coordinates}
-                  key={`${farm.id}-${id}`}
-                  pathOptions={{ color, weight: selectedGeomId === id ? 7 : 3 }}
-                  eventHandlers={{
-                    click: () => navigate(`/farms/${farm.id}/parcels/${id}`),
-                  }}
-                >
-                  <Tooltip>{name}</Tooltip>
-                </GeoJSON>
-              ))}
-          </>
-        )}
-      </>,
-    );
-  }, [farm, selectedGeomId]);
-
   return (
     <>
       {!farm && <>Nothing ! </>}
       {farm && (
         <>
+          <FarmElts farms={[farm]} />
+          {farm.parcels.length > 0 && (
+            <ParcelElts
+              parcels={farm.parcels}
+              selectedGeomId={selectedGeomId}
+              farmId={farm.id}
+            />
+          )}
           <Button onClick={() => navigate(`/farms/${farm.id}/new`)}>
             New parcel
           </Button>
