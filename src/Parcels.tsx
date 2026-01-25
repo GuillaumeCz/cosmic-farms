@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { List, Card, Button } from "antd";
+import { List, Button, type CollapseProps, Collapse } from "antd";
 import { type Farm } from "./types";
 import { getFarm } from "./data";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -25,9 +25,9 @@ function Parcels() {
     MapContext,
   ) as MapContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
-  const [bounds, setBounds] = useState<LatLng[]>([]);
+  const [_, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
-
+  const [collapseItems, setCollapseItems] = useState<CollapseProps["items"]>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,6 +57,48 @@ function Parcels() {
   }, []);
 
   useEffect(() => {
+    if (farm) {
+      setCollapseItems([
+        ...farm.parcels.map(
+          ({ id, color, name, boards, coordinates: { geometry } }) => ({
+            key: id,
+            label: (
+              <div
+                onMouseEnter={() => {
+                  setSelectedGeomId(id);
+                  setViewBounds(geometryToLatLng(geometry));
+                }}
+              >
+                {name}
+              </div>
+            ),
+            extra: (
+              <div
+                className="color"
+                style={{
+                  background: color,
+                }}
+              ></div>
+            ),
+            children: (
+              <>
+                <List
+                  size="small"
+                  bordered
+                  dataSource={boards}
+                  header={<div>Number of boards: {boards.length}</div>}
+                  renderItem={(b) => <List.Item>{b.name}</List.Item>}
+                />
+                <Link to={`/farms/${farm.id}/parcels/${id}`}>
+                  See all boards
+                </Link>
+              </>
+            ),
+          }),
+        ),
+      ]);
+    }
+
     setMapChildren(
       <>
         {farm && (
@@ -66,6 +108,7 @@ function Parcels() {
               <ParcelElts
                 parcels={farm.parcels}
                 selectedGeomId={selectedGeomId}
+                setSelectedGeomId={setSelectedGeomId}
                 farmId={farm.id}
               />
             )}
@@ -83,41 +126,11 @@ function Parcels() {
           <Button onClick={() => navigate(`/farms/${farm.id}/new`)}>
             New parcel
           </Button>
-          {farm.parcels.map(
-            ({ name, id, boards, coordinates: { geometry }, color }) => (
-              <Card
-                title={name}
-                key={id}
-                extra={
-                  <div
-                    className="color"
-                    style={{
-                      background: color,
-                    }}
-                  ></div>
-                }
-                onMouseEnter={() => {
-                  setSelectedGeomId(id);
-                  setViewBounds(geometryToLatLng(geometry));
-                }}
-                onMouseLeave={() => {
-                  setSelectedGeomId(null);
-                  setViewBounds(bounds);
-                }}
-              >
-                <List
-                  size="small"
-                  bordered
-                  dataSource={boards}
-                  header={<div>Number of boards: {boards.length}</div>}
-                  renderItem={(b) => <List.Item>{b.name}</List.Item>}
-                ></List>
-                <Link to={`/farms/${farm.id}/parcels/${id}`}>
-                  See all boards
-                </Link>
-              </Card>
-            ),
-          )}
+          <Collapse
+            accordion
+            items={collapseItems}
+            activeKey={selectedGeomId ?? undefined}
+          />
         </>
       )}
     </>
