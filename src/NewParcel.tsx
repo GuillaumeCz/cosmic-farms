@@ -1,12 +1,16 @@
 import { useContext, useEffect, useState } from "react";
 import { MapContext, type MapContextType } from "./Providers";
 import L, { LatLng } from "leaflet";
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, Space, InputNumber } from "antd";
 import { Tooltip, GeoJSON, Polyline, useMapEvents } from "react-leaflet";
-import { createParcel, getFarm } from "./data";
+import { colorHash, createParcel, getFarm } from "./data";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Farm } from "./types";
-import { geoJsonToLatLng, latLngToFeaturePoint } from "./utils";
+import {
+  geoJsonToLatLng,
+  LatLngsToFeaturePolygon,
+  latLngToFeaturePoint,
+} from "./utils";
 
 function NewParcel() {
   const [farm, setFarm] = useState<Farm>();
@@ -29,12 +33,14 @@ function NewParcel() {
           if (points.length >= 1) {
             // If last point less than 15 meters away...
             const p = points[0].distanceTo(e.latlng);
-            if (p < 15) {
+            if (p < 30) {
               setIsEditing(false);
               setPoints([...points, points[0]]);
             }
           }
           if (isEditing) {
+            form.setFieldValue(`${points.length}-lat`, e.latlng.lat);
+            form.setFieldValue(`${points.length}-lng`, e.latlng.lng);
             setPoints([...points, e.latlng]);
           }
         }
@@ -76,39 +82,52 @@ function NewParcel() {
             <Tooltip>{farm.name}</Tooltip>{" "}
           </GeoJSON>
         )}
+        {isValidPolygon && (
+          <>
+            <GeoJSON
+              key={points.reduce((acc, cur) => (acc += cur), "")}
+              data={LatLngsToFeaturePolygon(points)}
+              pathOptions={{ color: "grey", weight: 0.4 }}
+            />
+          </>
+        )}
         {points.length > 0 && (
           <>
-            {points.map((p, i) => (
-              <>
-                <GeoJSON
-                  data={latLngToFeaturePoint(p)}
-                  key={p.toString()}
-                  pathOptions={{ color: "#fff" }}
-                  pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
-                  eventHandlers={{
-                    click: (e) => {
-                      const c = points.filter(
-                        (p) => p.lng !== e.latlng.lng && p.lat !== e.latlng.lat,
-                      );
-                      setPoints(c);
-                    },
-                  }}
-                />
-                {i >= 1 && (
-                  <>
+            {points.map((p, i) => {
+              return (
+                <>
+                  <GeoJSON
+                    data={latLngToFeaturePoint(p)}
+                    key={p.toString()}
+                    pathOptions={{ color: colorHash.hex(`${p.lat}${p.lng}`) }}
+                    pointToLayer={(_, pos) =>
+                      L.circleMarker(pos, { radius: 8 })
+                    }
+                    eventHandlers={{
+                      click: (e) => {
+                        const c = points.filter(
+                          (r) =>
+                            r.lng !== e.latlng.lng && r.lat !== e.latlng.lat,
+                        );
+                        setPoints(c);
+                      },
+                    }}
+                  ></GeoJSON>
+                  {!isValidPolygon && i >= 1 && (
                     <Polyline
-                      key={p.toString() + "-blap"}
+                      key={p.toString() + "-line"}
                       positions={[points[i - 1], p]}
+                      pathOptions={{ color: "grey", weight: 1 }}
                     />
-                  </>
-                )}
-              </>
-            ))}
+                  )}
+                </>
+              );
+            })}
           </>
         )}
       </>,
     );
-  }, [farm, points]);
+  }, [farm, points, isValidPolygon]);
 
   useEffect(() => {
     form
@@ -131,27 +150,6 @@ function NewParcel() {
           {farm.name} - {farm.owner}
         </>
       )}
-      {points.length > 0 && (
-        <div>
-          <Button
-            onClick={() => {
-              const p = [...points];
-              p.pop();
-              setPoints(p);
-            }}
-          >
-            Undo
-          </Button>
-          <Button
-            onClick={() => {
-              setIsEditing(true);
-              setPoints([]);
-            }}
-          >
-            Erase
-          </Button>
-        </div>
-      )}
 
       <Form
         name="create-parcel"
@@ -162,6 +160,105 @@ function NewParcel() {
       >
         <Form.Item label={"Name"} name={"name"} rules={[{ required: true }]}>
           <Input />
+        </Form.Item>
+        <Form.Item label="points">
+          {points.length > 0 && (
+            <div>
+              <Button
+                onClick={() => {
+                  const p = [...points];
+                  p.pop();
+                  setPoints(p);
+                }}
+              >
+                Undo
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsEditing(true);
+                  setPoints([]);
+                }}
+              >
+                Erase
+              </Button>
+              {isValidPolygon ? "Valid" : "Not valid"}
+            </div>
+          )}
+          {points.length > 0 &&
+            points.map((p, i) => {
+              const isLast = i === points.length - 1;
+              const isSameAsFirst =
+                p.lat === points[0].lat && p.lng === points[0].lng;
+              const isException = isLast && isSameAsFirst;
+
+              return (
+                <>
+                  <Space.Compact>
+                    <Form.Item
+                      key={p + "" + i}
+                      name={`${i}-lat`}
+                      rules={[{ required: true }]}
+                    >
+                      <>
+                        <p style={{ display: "none" }}>{p.lat}</p>
+                        <InputNumber
+                          suffix="° N"
+                          style={{ width: 200 }}
+                          controls={false}
+                          placeholder={"Latitude"}
+                          value={isException ? points[0].lat : p.lat}
+                          disabled={i !== 0 && isException}
+                          onChange={(e) => {
+                            if (e) {
+                              const pts = [...points];
+                              if (isException) {
+                                pts[0].lat = e;
+                                pts[-1].lat = e;
+                              } else {
+                                pts[i].lat = e;
+                              }
+                              setPoints(pts);
+                              form.setFieldValue(`${i}-lat`, e);
+                            }
+                          }}
+                        />
+                      </>
+                    </Form.Item>
+                    <Form.Item name={`${i}-lng`} rules={[{ required: true }]}>
+                      <>
+                        <p style={{ display: "none" }}>{p.lng}</p>
+                        <InputNumber
+                          suffix="°E"
+                          style={{ width: 200 }}
+                          controls={false}
+                          value={
+                            i !== 0 && isSameAsFirst && isLast
+                              ? points[0].lng
+                              : p.lng
+                          }
+                          disabled={i !== 0 && isSameAsFirst && isLast}
+                          placeholder={"Longitude"}
+                          onChange={(e) => {
+                            if (e) {
+                              const p = [...points];
+                              p[i].lng = e;
+                              setPoints(p);
+                              form.setFieldValue(`${i}-lng`, e);
+                            }
+                          }}
+                        />
+                      </>
+                    </Form.Item>
+                    <div
+                      className="color"
+                      style={{
+                        background: colorHash.hex(`${p.lat}${p.lng}`),
+                      }}
+                    ></div>
+                  </Space.Compact>
+                </>
+              );
+            })}
         </Form.Item>
         <Form.Item label={null}>
           <Button

@@ -6,7 +6,7 @@ import { type LatLng } from "leaflet";
 import GeoJSON from "geojson";
 import { LatLngsToFeaturePolygon, latLngToFeaturePoint } from "./utils";
 
-const colorHash = new ColorHash();
+export const colorHash = new ColorHash();
 
 const addVirtuals = (a: any): any => {
   return {
