@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { getFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
-import { List, Card, Button } from "antd";
+import { List, Button, Collapse, type CollapseProps } from "antd";
 import {
   CurrentFarmContext,
   MapContext,
@@ -15,7 +15,9 @@ import FarmElts from "./map/FarmElts";
 
 function Farms() {
   const [farms, setFarms] = useState<Farm[]>([]);
-  const [bounds, setBounds] = useState<LatLng[]>([]);
+  const [_, setBounds] = useState<LatLng[]>([]);
+  const [collapseItems, setCollapseItems] = useState<CollapseProps["items"]>();
+  const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
   const { setCurrentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
@@ -36,11 +38,60 @@ function Farms() {
     setViewBounds(bds);
 
     setFarms(fs);
+    setSelectedGeomId(fs[0].id);
     setCurrentFarm(null);
   }, []);
 
   useEffect(() => {
-    setMapChildren(<>{farms.length > 0 && <FarmElts farms={farms} />}</>);
+    setMapChildren(
+      <>
+        {farms.length > 0 && (
+          <FarmElts farms={farms} setSelectedGeomId={setSelectedGeomId} />
+        )}
+      </>,
+    );
+    setCollapseItems([
+      ...farms.map(
+        ({ name, owner, parcels, id, color, coordinates: { geometry } }) => ({
+          key: id,
+          label: (
+            <div
+              onMouseEnter={() => {
+                setSelectedGeomId(id);
+                setViewBounds([geoJsonToLatLng(geometry)]);
+              }}
+            >
+              {name}
+            </div>
+          ),
+          extra: <div className="color" style={{ background: color }}></div>,
+          children: (
+            <>
+              <p>Owner: {owner}</p>
+              <List
+                size="small"
+                bordered
+                dataSource={parcels}
+                header={<div>Number of parcels: {parcels.length}</div>}
+                renderItem={(p) => (
+                  <List.Item
+                    actions={[
+                      <Link to={`/farms/${id}/parcels/${p.id}`}>See</Link>,
+                    ]}
+                  >
+                    {p.name}
+                  </List.Item>
+                )}
+              />
+              <Button onClick={() => navigate(`/farms/${id}/new`)}>
+                New parcel
+              </Button>
+              <Link to={`/farms/${id}`}>Sell all parcels</Link>
+            </>
+          ),
+        }),
+      ),
+    ]);
   }, [farms]);
 
   return (
@@ -52,51 +103,14 @@ function Farms() {
       >
         New Farm
       </Button>
+
       {farms.length > 0 && (
         <>
-          {farms.map(
-            ({
-              name,
-              id,
-              owner,
-              parcels,
-              coordinates: { geometry },
-              color,
-            }) => (
-              <Card
-                hoverable
-                title={name}
-                key={id}
-                extra={
-                  <div className="color" style={{ background: color }}></div>
-                }
-                onMouseEnter={() => setViewBounds([geoJsonToLatLng(geometry)])}
-                onMouseLeave={() => setViewBounds(bounds)}
-              >
-                <p>Owner: {owner}</p>
-                <List
-                  size="small"
-                  bordered
-                  dataSource={parcels}
-                  header={<div>Number of parcels: {parcels.length}</div>}
-                  renderItem={(p) => (
-                    <List.Item
-                      actions={[
-                        <Link to={`/farms/${id}/parcels/${p.id}`}>See</Link>,
-                      ]}
-                    >
-                      {p.name}
-                    </List.Item>
-                  )}
-                />
-
-                <Button onClick={() => navigate(`/farms/${id}/new`)}>
-                  New parcel
-                </Button>
-                <Link to={`/farms/${id}`}>Sell all parcels</Link>
-              </Card>
-            ),
-          )}
+          <Collapse
+            accordion
+            items={collapseItems}
+            activeKey={selectedGeomId ?? undefined}
+          />
         </>
       )}
     </>

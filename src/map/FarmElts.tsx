@@ -2,8 +2,15 @@ import L from "leaflet";
 import type { Farm } from "../types";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, GeoJSON } from "react-leaflet";
+import type { Dispatch } from "react";
 
-const FarmElts = ({ farms: farms }: { farms: Farm[] }) => {
+const FarmElts = ({
+  farms,
+  setSelectedGeomId,
+}: {
+  farms: Farm[];
+  setSelectedGeomId?: Dispatch<string | null>;
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -12,7 +19,10 @@ const FarmElts = ({ farms: farms }: { farms: Farm[] }) => {
         <GeoJSON
           data={coordinates}
           key={`${id}-farm`}
-          eventHandlers={{ click: () => navigate(`/farms/${id}`) }}
+          eventHandlers={{
+            mouseover: () => setSelectedGeomId && setSelectedGeomId(id),
+            click: () => navigate(`/farms/${id}`),
+          }}
           pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
           pathOptions={{ color }}
         >
