@@ -39,6 +39,7 @@ function Boards() {
       if (farmId) {
         f = getFarm(farmId);
         setCurrentFarm(f);
+        setFarm(f);
       }
     } else {
       if (farmId === currentFarm.id) {
