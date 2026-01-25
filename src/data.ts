@@ -16,16 +16,28 @@ const addVirtuals = (a: any): any => {
   };
 };
 
-let farms: Farm[] = data.farms.map((f) => ({
-  ...addVirtuals(f),
-  parcels: f.parcels.map((p) => ({
-    ...addVirtuals(p),
-    boards: p.boards.map((b) => ({
-      ...addVirtuals(b),
-      rows: b.rows.map((r) => ({ ...addVirtuals(r) })),
+let farms: Farm[] = [];
+
+const storedData = localStorage.getItem("farms");
+
+if (storedData && storedData.length > 0) {
+  farms = JSON.parse(storedData);
+} else {
+  farms = [
+    ...farms,
+    ...data.farms.map((f) => ({
+      ...addVirtuals(f),
+      parcels: f.parcels.map((p) => ({
+        ...addVirtuals(p),
+        boards: p.boards.map((b) => ({
+          ...addVirtuals(b),
+          rows: b.rows.map((r) => ({ ...addVirtuals(r) })),
+        })),
+      })),
     })),
-  })),
-}));
+  ];
+  localStorage.setItem("farms", JSON.stringify(farms));
+}
 
 export const getFarms = (): Farm[] => farms;
 
@@ -51,6 +63,8 @@ export const createFarm = (newFarm: {
 
   farms = [...farms, f];
 
+  localStorage.setItem("farms", JSON.stringify(farms));
+
   return farms;
 };
 
@@ -72,6 +86,7 @@ export const createParcel = (
 
   if (fIndex !== -1) {
     farms[fIndex].parcels = [...farms[fIndex].parcels, p];
+    localStorage.setItem("farms", JSON.stringify(farms));
   } else {
     console.error("farmId unknown");
   }
