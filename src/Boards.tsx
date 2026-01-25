@@ -3,9 +3,7 @@ import { useParams } from "react-router-dom";
 import type { Farm, Parcel } from "./types";
 import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
-import { Tooltip, GeoJSON } from "react-leaflet";
 import { List } from "antd";
-import L from "leaflet";
 
 import { LatLng } from "leaflet";
 import { geometryToLatLng, lineToLatLng, pointToLatLng } from "./utils";
@@ -17,6 +15,10 @@ import {
 } from "./Providers";
 
 import "./shared.css";
+import ParcelElts from "./map/ParcelElts";
+import FarmElts from "./map/FarmElts";
+import BoardElts from "./map/BoardElts";
+import RowElts from "./map/RowElts";
 
 function Boards() {
   const { farmId, parcelId } = useParams();
@@ -57,7 +59,7 @@ function Boards() {
         }
         setParcel(p);
       } else {
-        console.log("parcelId unknown");
+        console.error("parcelId unknown");
       }
     }
   }, []);
@@ -66,57 +68,30 @@ function Boards() {
     setMapChildren(
       <>
         {farm && (
-          <GeoJSON data={farm.coordinates} key={`${farm.id}-map`}>
-            <Tooltip>{farm.name}</Tooltip>
-          </GeoJSON>
-        )}
-        {parcel && (
           <>
-            <GeoJSON
-              data={parcel.coordinates}
-              pathOptions={{ fillOpacity: 0, color: "grey" }}
-            >
-              <Tooltip>{parcel.name}</Tooltip>
-            </GeoJSON>
-            {parcel.boards.length > 0 &&
-              parcel.boards.map(({ id, coordinates, name, rows, color }) => (
-                <div key={id + "-boards"}>
-                  <GeoJSON
-                    pathOptions={{
-                      color,
-                      weight: selectedGeomId === id ? 7 : 3,
-                    }}
-                    data={coordinates}
-                    key={id}
-                    eventHandlers={{
-                      mouseover: () => setSelectedGeomId(id),
-                      mouseout: () => setSelectedGeomId(null),
-                    }}
-                  >
-                    <Tooltip>{name}</Tooltip>
-                  </GeoJSON>
-                  {rows.length > 0 &&
-                    rows.map((r) => (
-                      <GeoJSON
-                        data={r.coordinates}
-                        key={r.id}
-                        pathOptions={{
-                          color: r.color,
-                          weight: selectedGeomId === r.id ? 7 : 3,
-                        }}
-                        eventHandlers={{
-                          mouseover: () => setSelectedGeomId(r.id),
-                          mouseout: () => setSelectedGeomId(null),
-                        }}
-                        pointToLayer={(_, pos) =>
-                          L.circleMarker(pos, { radius: 5 })
-                        }
-                      >
-                        <Tooltip>{r.name}</Tooltip>
-                      </GeoJSON>
+            <FarmElts farms={[farm]} />
+            {parcel && (
+              <>
+                <ParcelElts parcels={[parcel]} />
+                {parcel.boards.length && (
+                  <>
+                    <BoardElts
+                      boards={parcel.boards}
+                      selectedGeomId={selectedGeomId}
+                      setSelectedGeomId={setSelectedGeomId}
+                    />
+                    {parcel.boards.map((b, i) => (
+                      <RowElts
+                        key={`${i}-rows`}
+                        rows={b.rows}
+                        selectedGeomId={selectedGeomId}
+                        setSelectedGeomId={setSelectedGeomId}
+                      />
                     ))}
-                </div>
-              ))}
+                  </>
+                )}
+              </>
+            )}
           </>
         )}
       </>,

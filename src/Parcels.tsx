@@ -21,7 +21,9 @@ function Parcels() {
   const { setCurrentFarm, currentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
-  const { setViewBounds } = useContext(MapContext) as MapContextType;
+  const { setViewBounds, setMapChildren } = useContext(
+    MapContext,
+  ) as MapContextType;
   const [farm, setFarm] = useState<Farm | null>(null);
   const [bounds, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
@@ -54,19 +56,30 @@ function Parcels() {
     }
   }, []);
 
+  useEffect(() => {
+    setMapChildren(
+      <>
+        {farm && (
+          <>
+            <FarmElts farms={[farm]} />
+            {farm.parcels.length > 0 && (
+              <ParcelElts
+                parcels={farm.parcels}
+                selectedGeomId={selectedGeomId}
+                farmId={farm.id}
+              />
+            )}
+          </>
+        )}
+      </>,
+    );
+  }, [farm]);
+
   return (
     <>
       {!farm && <>Nothing ! </>}
       {farm && (
         <>
-          <FarmElts farms={[farm]} />
-          {farm.parcels.length > 0 && (
-            <ParcelElts
-              parcels={farm.parcels}
-              selectedGeomId={selectedGeomId}
-              farmId={farm.id}
-            />
-          )}
           <Button onClick={() => navigate(`/farms/${farm.id}/new`)}>
             New parcel
           </Button>

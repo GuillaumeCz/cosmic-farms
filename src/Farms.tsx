@@ -20,7 +20,9 @@ function Farms() {
     CurrentFarmContext,
   ) as CurrentFarmContextType;
 
-  const { setViewBounds } = useContext(MapContext) as MapContextType;
+  const { setViewBounds, setMapChildren } = useContext(
+    MapContext,
+  ) as MapContextType;
 
   const navigate = useNavigate();
 
@@ -37,6 +39,10 @@ function Farms() {
     setCurrentFarm(null);
   }, []);
 
+  useEffect(() => {
+    setMapChildren(<>{farms.length > 0 && <FarmElts farms={farms} />}</>);
+  }, [farms]);
+
   return (
     <>
       <Button
@@ -48,7 +54,6 @@ function Farms() {
       </Button>
       {farms.length > 0 && (
         <>
-          <FarmElts farms={farms} />
           {farms.map(
             ({
               name,
