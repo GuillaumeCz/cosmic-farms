@@ -45,6 +45,29 @@ export const getFarm = (farmId: string): Farm | null => {
   return farms.find(({ id }) => farmId === id) ?? null;
 };
 
+export const getParcels = (farmId: string): Parcel[] => {
+  const f = farms.find(({ id }) => id === farmId);
+  if (!f) {
+    console.error("unknown farm id");
+    return [];
+  }
+  return f.parcels;
+};
+
+export const getParcel = (farmId: string, parcelId: string): Parcel | null => {
+  const f = farms.find(({ id }) => id === farmId);
+  if (!f) {
+    console.error("unknown farm id");
+    return null;
+  }
+  const p = f.parcels.find(({ id }) => id === parcelId);
+  if (!p) {
+    console.error("Unknown parcel id");
+    return null;
+  }
+  return p;
+};
+
 export const createFarm = (newFarm: {
   owner: string;
   name: string;

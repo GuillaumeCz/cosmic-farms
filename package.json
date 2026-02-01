@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@turf/turf": "^7.3.2",
     "@types/color-hash": "^2.0.0",
     "antd": "^5.27.4",
     "color-hash": "^2.0.2",

@@ -1,6 +1,6 @@
 import { LatLng, LatLngBounds, type LatLngExpression } from "leaflet";
 import { useContext, useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, ScaleControl, TileLayer, useMap } from "react-leaflet";
 
 import "./Map.css";
 import { MapContext, type MapContextType } from "../Providers";
@@ -44,6 +44,7 @@ const Map = ({
   return (
     <MapContainer center={center} maxZoom={maxZoom} zoom={zoom} id={"map"}>
       {children}
+      <ScaleControl position={"bottomright"} imperial={false} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

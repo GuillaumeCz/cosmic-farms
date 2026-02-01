@@ -11,6 +11,8 @@ import {
   LatLngsToFeaturePolygon,
   latLngToFeaturePoint,
 } from "./utils";
+import FarmElts from "./map/FarmElts";
+import ParcelElts from "./map/ParcelElts";
 
 function NewParcel() {
   const [farm, setFarm] = useState<Farm>();
@@ -63,6 +65,10 @@ function NewParcel() {
       if (f) {
         setFarm(f);
 
+        const c = [
+          ...f.parcels.map((p) => geoJsonToLatLng(p.coordinates.geometry)),
+        ];
+        console.log(c);
         setViewBounds([geoJsonToLatLng(f.coordinates.geometry)]);
       }
     }
@@ -73,14 +79,10 @@ function NewParcel() {
       <>
         <MarkerAdd />
         {farm && (
-          <GeoJSON
-            data={farm.coordinates}
-            key={`${farm.id}`}
-            pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
-            pathOptions={{ color: farm.color }}
-          >
-            <Tooltip>{farm.name}</Tooltip>{" "}
-          </GeoJSON>
+          <>
+            <FarmElts farms={[farm]} />
+            <ParcelElts parcels={farm.parcels} />
+          </>
         )}
         {isValidPolygon && (
           <>
@@ -150,7 +152,7 @@ function NewParcel() {
           {farm.name} - {farm.owner}
         </>
       )}
-
+      <div>New Parcel !</div>
       <Form
         name="create-parcel"
         layout="vertical"
