@@ -1,10 +1,9 @@
 import { useState, useEffect, useContext } from "react";
 import { List, Button, type CollapseProps, Collapse } from "antd";
-import { type Farm } from "./types";
-import { getFarm } from "./data";
+import { CFarm } from "./models";
+import { getCFarm } from "./data";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LatLng } from "leaflet";
-import { geometryToLatLng } from "./utils";
 import {
   CurrentFarmContext,
   MapContext,
@@ -24,7 +23,7 @@ function Parcels() {
   const { setViewBounds, setMapChildren } = useContext(
     MapContext,
   ) as MapContextType;
-  const [farm, setFarm] = useState<Farm | null>(null);
+  const [farm, setFarm] = useState<CFarm | null>(null);
   const [_, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
   const [collapseItems, setCollapseItems] = useState<CollapseProps["items"]>();
@@ -34,7 +33,7 @@ function Parcels() {
     let f;
     if (currentFarm === null) {
       if (farmId) {
-        f = getFarm(farmId);
+        f = getCFarm(farmId);
         if (f) {
           setFarm(f);
           setCurrentFarm(f);
@@ -49,8 +48,8 @@ function Parcels() {
 
     if (f && f.parcels.length > 0) {
       const bds = f.parcels
-        .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
-        .reduce((acc, cur) => [...acc, ...cur], []);
+        .map((p) => p.getLatLngs())
+        .reduce((acc, curr) => [...acc, ...curr], []);
       setBounds(bds);
       setViewBounds(bds);
     }
@@ -59,43 +58,39 @@ function Parcels() {
   useEffect(() => {
     if (farm) {
       setCollapseItems([
-        ...farm.parcels.map(
-          ({ id, color, name, boards, coordinates: { geometry } }) => ({
-            key: id,
-            label: (
-              <div
-                onMouseEnter={() => {
-                  setSelectedGeomId(id);
-                  setViewBounds(geometryToLatLng(geometry));
-                }}
-              >
-                {name}
-              </div>
-            ),
-            extra: (
-              <div
-                className="color"
-                style={{
-                  background: color,
-                }}
-              ></div>
-            ),
-            children: (
-              <>
-                <List
-                  size="small"
-                  bordered
-                  dataSource={boards}
-                  header={<div>Number of boards: {boards.length}</div>}
-                  renderItem={(b) => <List.Item>{b.name}</List.Item>}
-                />
-                <Link to={`/farms/${farm.id}/parcels/${id}`}>
-                  See all boards
-                </Link>
-              </>
-            ),
-          }),
-        ),
+        ...farm.parcels.map(({ id, color, name, boards, getLatLngs }) => ({
+          key: id,
+          label: (
+            <div
+              onMouseEnter={() => {
+                setSelectedGeomId(id);
+                setViewBounds(getLatLngs());
+              }}
+            >
+              {name}
+            </div>
+          ),
+          extra: (
+            <div
+              className="color"
+              style={{
+                background: color,
+              }}
+            ></div>
+          ),
+          children: (
+            <>
+              <List
+                size="small"
+                bordered
+                dataSource={boards}
+                header={<div>Number of boards: {boards.length}</div>}
+                renderItem={(b) => <List.Item>{b.name}</List.Item>}
+              />
+              <Link to={`/farms/${farm.id}/parcels/${id}`}>See all boards</Link>
+            </>
+          ),
+        })),
       ]);
     }
 

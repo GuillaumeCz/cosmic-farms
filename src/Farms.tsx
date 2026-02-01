@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext } from "react";
-import type { Farm } from "./types";
 import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
-import { getFarms } from "./data";
+import { getCFarms } from "./data";
 import { geoJsonToLatLng } from "./utils";
 import { List, Button, Collapse, type CollapseProps } from "antd";
 import {
@@ -12,9 +11,10 @@ import {
   type MapContextType,
 } from "./Providers";
 import FarmElts from "./map/FarmElts";
+import { CFarm } from "./models";
 
 function Farms() {
-  const [farms, setFarms] = useState<Farm[]>([]);
+  const [farms, setFarms] = useState<CFarm[]>([]);
   const [_, setBounds] = useState<LatLng[]>([]);
   const [collapseItems, setCollapseItems] = useState<CollapseProps["items"]>();
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
@@ -29,10 +29,11 @@ function Farms() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fs = getFarms();
-    const bds = fs.map(({ coordinates: { geometry } }) =>
-      geoJsonToLatLng(geometry),
-    );
+    const fs: CFarm[] = getCFarms();
+
+    const bds = fs
+      .map((f) => f.getLatLngs())
+      .reduce((acc, curr) => [...acc, ...curr], []);
 
     setBounds(bds);
     setViewBounds(bds);
@@ -52,7 +53,7 @@ function Farms() {
     );
     setCollapseItems([
       ...farms.map(
-        ({ name, owner, parcels, id, color, coordinates: { geometry } }) => ({
+        ({ name, owner, parcels, id, color, geojson: { geometry } }) => ({
           key: id,
           label: (
             <div

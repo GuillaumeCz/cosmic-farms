@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Farm, Parcel } from "./types";
-import { getFarm } from "./data";
+import { getCFarm } from "./data";
 import Card from "antd/es/card/Card";
 import { List } from "antd";
+import { CFarm, CParcel } from "./models";
 
 import { LatLng } from "leaflet";
-import { geometryToLatLng, lineToLatLng, pointToLatLng } from "./utils";
 import {
   CurrentFarmContext,
   MapContext,
@@ -22,8 +21,8 @@ import RowElts from "./map/RowElts";
 
 function Boards() {
   const { farmId, parcelId } = useParams();
-  const [farm, setFarm] = useState<Farm | null>(null);
-  const [parcel, setParcel] = useState<Parcel | null>();
+  const [farm, setFarm] = useState<CFarm | null>(null);
+  const [parcel, setParcel] = useState<CParcel | null>();
   const [bounds, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
   const { setCurrentFarm, currentFarm } = useContext(
@@ -37,7 +36,7 @@ function Boards() {
     let f;
     if (currentFarm === null) {
       if (farmId) {
-        f = getFarm(farmId);
+        f = getCFarm(farmId);
         setCurrentFarm(f);
         setFarm(f);
       }
@@ -49,11 +48,13 @@ function Boards() {
     }
 
     if (f) {
-      const p: Parcel | undefined = f.parcels.find(({ id }) => id === parcelId);
+      const p: CParcel | undefined = f.parcels.find(
+        ({ id }) => id === parcelId,
+      );
       if (p) {
         if (p.boards.length !== 0) {
           const bds = p.boards
-            .map(({ coordinates: { geometry } }) => geometryToLatLng(geometry))
+            .map((b) => b.getLatLngs())
             .reduce((acc, cur) => [...acc, ...cur], []);
           setBounds(bds);
           setViewBounds(bds);
@@ -105,82 +106,75 @@ function Boards() {
         <>
           {parcel && (
             <>
-              {parcel.boards.map(
-                ({ id, name, rows, coordinates: { geometry }, color }) => (
-                  <Card
-                    extra={
-                      <div
-                        className="color"
-                        style={{
-                          background: color,
-                          width: "22px",
-                          height: "22px",
-                          borderRadius: "15px",
+              {parcel.boards.map(({ id, name, rows, color, getLatLngs }) => (
+                <Card
+                  extra={
+                    <div
+                      className="color"
+                      style={{
+                        background: color,
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "15px",
+                      }}
+                    ></div>
+                  }
+                  title={
+                    <div
+                      style={{
+                        fontWeight: selectedGeomId === id ? "bold" : "normal",
+                      }}
+                    >
+                      {name}
+                    </div>
+                  }
+                  key={`${id}-card`}
+                  onMouseEnter={() => {
+                    setSelectedGeomId(id);
+                    setViewBounds(getLatLngs());
+                  }}
+                  onMouseLeave={() => {
+                    setSelectedGeomId(null);
+                    setViewBounds(bounds);
+                  }}
+                >
+                  <List
+                    size="small"
+                    bordered
+                    dataSource={rows}
+                    header={<div>Number of rows: {rows.length}</div>}
+                    renderItem={(r) => (
+                      <List.Item
+                        onMouseEnter={() => {
+                          setSelectedGeomId(r.id);
+                          setViewBounds(r.getLatLngs());
                         }}
-                      ></div>
-                    }
-                    title={
-                      <div
-                        style={{
-                          fontWeight: selectedGeomId === id ? "bold" : "normal",
+                        onMouseLeave={() => {
+                          setSelectedGeomId(null);
+                          setViewBounds(bounds);
                         }}
                       >
-                        {name}
-                      </div>
-                    }
-                    key={`${id}-card`}
-                    onMouseEnter={() => {
-                      setSelectedGeomId(id);
-                      // Didn't yet found an easy way to set the zoom value...
-                      setViewBounds(geometryToLatLng(geometry));
-                    }}
-                    onMouseLeave={() => {
-                      setSelectedGeomId(null);
-                      setViewBounds(bounds);
-                    }}
-                  >
-                    <List
-                      size="small"
-                      bordered
-                      dataSource={rows}
-                      header={<div>Number of rows: {rows.length}</div>}
-                      renderItem={(r) => (
-                        <List.Item
-                          onMouseEnter={() => {
-                            setSelectedGeomId(r.id);
-                            setViewBounds(
-                              r.coordinates.geometry.type === "Point"
-                                ? pointToLatLng(r.coordinates.geometry)
-                                : lineToLatLng(r.coordinates.geometry),
-                            );
-                          }}
-                          onMouseLeave={() => {
-                            setSelectedGeomId(null);
-                            setViewBounds(bounds);
-                          }}
-                        >
-                          <>
-                            <div
-                              style={{
-                                fontWeight:
-                                  selectedGeomId === r.id ? "bold" : "normal",
-                              }}
-                            >
-                              {r.name}
-                            </div>
-                            <div
-                              className="color"
-                              style={{
-                                background: r.color,
-                              }}
-                            ></div>
-                          </>
-                        </List.Item>
-                      )}
-                    />
-                  </Card>
-                ),
-              )}
+                        <>
+                          <div
+                            style={{
+                              fontWeight:
+                                selectedGeomId === r.id ? "bold" : "normal",
+                            }}
+                          >
+                            {r.name}
+                          </div>
+                          <div
+                            className="color"
+                            style={{
+                              background: r.color,
+                            }}
+                          ></div>
+                        </>
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+              ))}
             </>
           )}
         </>

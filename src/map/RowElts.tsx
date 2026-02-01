@@ -1,22 +1,23 @@
-import type { Row } from "../types";
 import { GeoJSON, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import type { Dispatch } from "react";
+import { CRow } from "../models";
+import type { LineString, Point } from "geojson";
 
 const RowElts = ({
   rows,
   selectedGeomId,
   setSelectedGeomId,
 }: {
-  rows: Row[];
+  rows: CRow<LineString | Point>[];
   selectedGeomId?: string | null;
   setSelectedGeomId?: Dispatch<string | null>;
 }) => (
   <>
     {rows.length > 0 &&
-      rows.map(({ coordinates, id, color, name }) => (
+      rows.map(({ geojson, id, color, name }) => (
         <GeoJSON
-          data={coordinates}
+          data={geojson}
           key={id}
           pathOptions={{
             color,

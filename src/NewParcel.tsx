@@ -3,17 +3,13 @@ import { MapContext, type MapContextType } from "./Providers";
 import L, { LatLng } from "leaflet";
 import { Form, Input, Button, Space, InputNumber } from "antd";
 import { Tooltip, GeoJSON, Polyline, useMapEvents } from "react-leaflet";
-import { colorHash, createParcel, getFarm } from "./data";
+import { colorHash, createCParcel, getCFarm } from "./data";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Farm } from "./types";
-import {
-  geoJsonToLatLng,
-  LatLngsToFeaturePolygon,
-  latLngToFeaturePoint,
-} from "./utils";
+import { LatLngsToFeaturePolygon, latLngToFeaturePoint } from "./utils";
+import { CFarm } from "./models";
 
 function NewParcel() {
-  const [farm, setFarm] = useState<Farm>();
+  const [farm, setFarm] = useState<CFarm>();
   const { setViewBounds, setMapChildren } = useContext(
     MapContext,
   ) as MapContextType;
@@ -59,11 +55,11 @@ function NewParcel() {
   useEffect(() => {
     let f;
     if (farmId) {
-      f = getFarm(farmId);
+      f = getCFarm(farmId);
       if (f) {
         setFarm(f);
 
-        setViewBounds([geoJsonToLatLng(f.coordinates.geometry)]);
+        setViewBounds(f.getLatLngs());
       }
     }
   }, []);
@@ -74,7 +70,7 @@ function NewParcel() {
         <MarkerAdd />
         {farm && (
           <GeoJSON
-            data={farm.coordinates}
+            data={farm.geojson}
             key={`${farm.id}`}
             pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
             pathOptions={{ color: farm.color }}
@@ -138,7 +134,7 @@ function NewParcel() {
 
   const onFinish = (v: { name: string }) => {
     if (farmId) {
-      createParcel(farmId, { ...v, position: points });
+      createCParcel(farmId, { ...v, position: points });
       navigate(`/farms/${farmId}`);
     }
   };

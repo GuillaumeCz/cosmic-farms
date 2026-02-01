@@ -3,7 +3,7 @@ import { MapContext, type MapContextType } from "./Providers";
 import { LatLng } from "leaflet";
 import { Form, Input, Button, InputNumber, Space } from "antd";
 import { useMapEvents, Marker } from "react-leaflet";
-import { createFarm } from "./data";
+import { createCFarm } from "./data";
 import { useNavigate } from "react-router-dom";
 
 function NewFarm() {
@@ -71,7 +71,7 @@ function NewFarm() {
 
   const onFinish = (v: { owner: string; name: string }) => {
     if (farmPosition) {
-      createFarm({ ...v, position: farmPosition });
+      createCFarm({ ...v, position: farmPosition });
       navigate("/farms");
     }
   };

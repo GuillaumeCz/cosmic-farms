@@ -1,92 +1,126 @@
-import type { Farm, Parcel } from "./types";
+import type { LineString, Point } from "geojson";
+import { type LatLng } from "leaflet";
 import ColorHash from "color-hash";
 
+import {
+  CParcel,
+  CBoard,
+  CRow,
+  CFarm,
+  parseGeoJSONPolygon,
+  parseGeoJSONPoint,
+  parseGeoJSONLineString,
+} from "./models";
+
 import data from "./data.json";
-import { type LatLng } from "leaflet";
-import GeoJSON from "geojson";
-import { LatLngsToFeaturePolygon, latLngToFeaturePoint } from "./utils";
 
 export const colorHash = new ColorHash();
 
-const addVirtuals = (a: any): any => {
-  return {
-    ...a,
-    color: colorHash.hex(a.id),
-    coordinates: a.coordinates as GeoJSON.Feature,
-  };
+const classInit = (storedData: string | null) => {
+  let fs: CFarm[];
+
+  let c;
+  if (storedData && storedData.length > 0) {
+    try {
+      c = JSON.parse(storedData).map((s: any) => JSON.parse(s));
+    } catch (err) {
+      c = JSON.parse(storedData);
+    }
+  } else {
+    // @ts-ignore
+    c = data.farms;
+  }
+
+  fs = c.map(
+    (f: any) =>
+      new CFarm({
+        owner: f.owner,
+        name: f.name,
+        id: f.id,
+        geojson: parseGeoJSONPoint(f),
+        parcels: f.parcels.map(
+          (p: any) =>
+            new CParcel({
+              name: p.name,
+              id: p.id,
+              geojson: parseGeoJSONPolygon(p),
+              boards: p.boards.map(
+                (b: any) =>
+                  new CBoard({
+                    name: b.name,
+                    id: b.id,
+                    geojson: parseGeoJSONPolygon(b),
+                    rows: b.rows.map((r: any) => {
+                      if (r.coordinates.geometry.type === "Point") {
+                        return new CRow<Point>({
+                          name: r.name,
+                          id: r.id,
+                          geojson: parseGeoJSONPoint(r),
+                        });
+                      }
+                      return new CRow<LineString>({
+                        name: r.name,
+                        id: r.id,
+                        geojson: parseGeoJSONLineString(r),
+                      });
+                    }),
+                  }),
+              ),
+            }),
+        ),
+      }),
+  );
+
+  // console.log("start");
+  // console.log(fs[0].getLatLngs());
+  // console.log(fs[0].parcels[0].getLatLngs());
+  // console.log(fs[0].parcels[0].boards[0].getLatLngs());
+  // console.log(fs[0].parcels[0].boards[0].rows[0].getLatLngs());
+  // console.log(fs[0].parcels[0].boards[0].rows[2].getLatLngs());
+  return fs;
 };
 
-let farms: Farm[] = [];
+const storedData: string | null = localStorage.getItem("farms");
 
-const storedData = localStorage.getItem("farms");
+let fs: CFarm[] = classInit(storedData);
 
-if (storedData && storedData.length > 0) {
-  farms = JSON.parse(storedData);
-} else {
-  farms = [
-    ...farms,
-    ...data.farms.map((f) => ({
-      ...addVirtuals(f),
-      parcels: f.parcels.map((p) => ({
-        ...addVirtuals(p),
-        boards: p.boards.map((b) => ({
-          ...addVirtuals(b),
-          rows: b.rows.map((r) => ({ ...addVirtuals(r) })),
-        })),
-      })),
-    })),
-  ];
-  localStorage.setItem("farms", JSON.stringify(farms));
-}
+export const getCFarms = (): CFarm[] => fs;
 
-export const getFarms = (): Farm[] => farms;
-
-export const getFarm = (farmId: string): Farm | null => {
-  return farms.find(({ id }) => farmId === id) ?? null;
+export const getCFarm = (farmId: string): CFarm | null => {
+  return fs.find(({ id }) => farmId === id) ?? null;
 };
 
-export const createFarm = (newFarm: {
+export const createCFarm = (newFarm: {
   owner: string;
   name: string;
   position: LatLng;
-}): Farm[] => {
-  const feat: GeoJSON.Feature = latLngToFeaturePoint(newFarm.position);
-  const id = crypto.randomUUID();
-  const f: Farm = {
-    id,
-    owner: newFarm.owner,
+}): CFarm[] => {
+  const f = new CFarm({
     name: newFarm.name,
-    color: colorHash.hex(id),
-    coordinates: feat,
-    parcels: [],
-  };
+    owner: newFarm.owner,
+    geojson: newFarm.position,
+  });
 
-  farms = [...farms, f];
+  fs = [...fs, f];
 
-  localStorage.setItem("farms", JSON.stringify(farms));
+  const json = fs.map((f) => f.toString());
 
-  return farms;
+  localStorage.setItem("farms", JSON.stringify(json));
+
+  return fs;
 };
 
-export const createParcel = (
+export const createCParcel = (
   farmId: string,
   newParcel: { name: string; position: LatLng[] },
-): Parcel => {
-  const feat: GeoJSON.Feature = LatLngsToFeaturePolygon(newParcel.position);
-  const id = crypto.randomUUID();
-  const p: Parcel = {
-    id,
-    name: newParcel.name,
-    coordinates: feat,
-    color: colorHash.hex(id),
-    boards: [],
-  };
-
-  const fIndex = farms.findIndex((v) => v.id === farmId);
+): CParcel => {
+  const p = new CParcel({ name: newParcel.name, geojson: newParcel.position });
+  const fIndex = fs.findIndex((v) => v.id === farmId);
 
   if (fIndex !== -1) {
-    farms[fIndex].parcels = [...farms[fIndex].parcels, p];
-    localStorage.setItem("farms", JSON.stringify(farms));
+    fs[fIndex].parcels = [...fs[fIndex].parcels, p];
+    const json = fs.map((f) => f.toString());
+    localStorage.setItem("farms", JSON.stringify(json));
   } else {
     console.error("farmId unknown");
   }

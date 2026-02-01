@@ -1,23 +1,23 @@
 import L from "leaflet";
-import type { Farm } from "../types";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, GeoJSON } from "react-leaflet";
 import type { Dispatch } from "react";
+import { CFarm } from "../models";
 
 const FarmElts = ({
   farms,
   setSelectedGeomId,
 }: {
-  farms: Farm[];
+  farms: CFarm[];
   setSelectedGeomId?: Dispatch<string | null>;
 }) => {
   const navigate = useNavigate();
 
   return (
     <>
-      {farms.map(({ coordinates, id, name, color }) => (
+      {farms.map(({ geojson, id, name, color }) => (
         <GeoJSON
-          data={coordinates}
+          data={geojson}
           key={`${id}-farm`}
           eventHandlers={{
             mouseover: () => setSelectedGeomId && setSelectedGeomId(id),

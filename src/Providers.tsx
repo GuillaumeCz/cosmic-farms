@@ -1,10 +1,10 @@
 import { createContext, useState, type Dispatch, type JSX } from "react";
-import type { Farm } from "./types";
 import type { LatLng } from "leaflet";
+import { CFarm } from "./models";
 
 export type CurrentFarmContextType = {
-  currentFarm: Farm | null;
-  setCurrentFarm: Dispatch<Farm | null>;
+  currentFarm: CFarm | null;
+  setCurrentFarm: Dispatch<CFarm | null>;
 };
 
 export type MapContextType = {
@@ -21,7 +21,7 @@ export const CurrentFarmContext = createContext<CurrentFarmContextType | null>(
 export const MapContext = createContext<MapContextType | null>(null);
 
 const Providers = ({ children }: { children: JSX.Element }) => {
-  const [currentFarm, setCurrentFarm] = useState<Farm | null>(null);
+  const [currentFarm, setCurrentFarm] = useState<CFarm | null>(null);
   const [viewBounds, setViewBounds] = useState<LatLng[]>([]);
   const [mapChildren, setMapChildren] = useState<JSX.Element>(<></>);
 
