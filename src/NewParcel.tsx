@@ -5,12 +5,8 @@ import { Form, Input, Button, Space, InputNumber } from "antd";
 import { Tooltip, GeoJSON, Polyline, useMapEvents } from "react-leaflet";
 import { colorHash, createParcel, getFarm } from "./data";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Farm } from "./types";
-import {
-  geoJsonToLatLng,
-  LatLngsToFeaturePolygon,
-  latLngToFeaturePoint,
-} from "./utils";
+import { LatLngsToFeaturePolygon, latLngToFeaturePoint } from "./utils";
+import { Farm } from "./models";
 
 function NewParcel() {
   const [farm, setFarm] = useState<Farm>();
@@ -63,7 +59,7 @@ function NewParcel() {
       if (f) {
         setFarm(f);
 
-        setViewBounds([geoJsonToLatLng(f.coordinates.geometry)]);
+        setViewBounds(f.getLatLngs());
       }
     }
   }, []);
@@ -74,7 +70,7 @@ function NewParcel() {
         <MarkerAdd />
         {farm && (
           <GeoJSON
-            data={farm.coordinates}
+            data={farm.geojson}
             key={`${farm.id}`}
             pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
             pathOptions={{ color: farm.color }}

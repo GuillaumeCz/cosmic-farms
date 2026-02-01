@@ -1,6 +1,6 @@
 import { createContext, useState, type Dispatch, type JSX } from "react";
-import type { Farm } from "./types";
 import type { LatLng } from "leaflet";
+import { Farm } from "./models";
 
 export type CurrentFarmContextType = {
   currentFarm: Farm | null;

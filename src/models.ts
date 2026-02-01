@@ -114,7 +114,7 @@ abstract class AbstractElement {
   };
 }
 
-export class CRow<F extends Point | LineString> extends AbstractElement {
+export class Row<F extends Point | LineString> extends AbstractElement {
   geojson: Feature<F>;
   constructor({
     name,
@@ -143,9 +143,9 @@ export class CRow<F extends Point | LineString> extends AbstractElement {
     };
   };
 }
-export class CBoard extends AbstractElement {
+export class Board extends AbstractElement {
   geojson: Feature<Polygon>;
-  rows: CRow<Point | LineString>[] = [];
+  rows: Row<Point | LineString>[] = [];
 
   constructor({
     name,
@@ -155,7 +155,7 @@ export class CBoard extends AbstractElement {
   }: {
     name: string;
     geojson: Feature<Polygon> | LatLng[];
-    rows?: CRow<Point | LineString>[];
+    rows?: Row<Point | LineString>[];
     id?: string;
   }) {
     super({ name, id });
@@ -175,9 +175,9 @@ export class CBoard extends AbstractElement {
   };
 }
 
-export class CParcel extends AbstractElement {
+export class Parcel extends AbstractElement {
   geojson: Feature<Polygon>;
-  boards: CBoard[] = [];
+  boards: Board[] = [];
 
   constructor({
     name,
@@ -188,7 +188,7 @@ export class CParcel extends AbstractElement {
     name: string;
     geojson: Feature<Polygon> | LatLng[];
     id?: string;
-    boards?: CBoard[];
+    boards?: Board[];
   }) {
     super({ name, id });
     this.geojson = Array.isArray(geojson)
@@ -207,10 +207,10 @@ export class CParcel extends AbstractElement {
   };
 }
 
-export class CFarm extends AbstractElement {
+export class Farm extends AbstractElement {
   owner: string;
   geojson: Feature<Point>;
-  parcels: CParcel[] = [];
+  parcels: Parcel[] = [];
 
   constructor({
     owner,
@@ -223,7 +223,7 @@ export class CFarm extends AbstractElement {
     name: string;
     geojson: Feature<Point> | LatLng;
     id?: string;
-    parcels?: CParcel[];
+    parcels?: Parcel[];
   }) {
     super({ name, id });
     this.owner = owner;

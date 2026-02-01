@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext } from "react";
-import type { Farm } from "./types";
 import { Link, useNavigate } from "react-router-dom";
 import { LatLng } from "leaflet";
 import { getFarms } from "./data";
@@ -12,6 +11,7 @@ import {
   type MapContextType,
 } from "./Providers";
 import FarmElts from "./map/FarmElts";
+import { Farm } from "./models";
 
 function Farms() {
   const [farms, setFarms] = useState<Farm[]>([]);
@@ -29,10 +29,11 @@ function Farms() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fs = getFarms();
-    const bds = fs.map(({ coordinates: { geometry } }) =>
-      geoJsonToLatLng(geometry),
-    );
+    const fs: Farm[] = getFarms();
+
+    const bds = fs
+      .map((f) => f.getLatLngs())
+      .reduce((acc, curr) => [...acc, ...curr], []);
 
     setBounds(bds);
     setViewBounds(bds);
@@ -52,7 +53,7 @@ function Farms() {
     );
     setCollapseItems([
       ...farms.map(
-        ({ name, owner, parcels, id, color, coordinates: { geometry } }) => ({
+        ({ name, owner, parcels, id, color, geojson: { geometry } }) => ({
           key: id,
           label: (
             <div

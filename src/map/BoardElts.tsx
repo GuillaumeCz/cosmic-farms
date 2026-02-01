@@ -1,6 +1,6 @@
 import type { Dispatch } from "react";
-import type { Board } from "../types";
 import { Tooltip, GeoJSON } from "react-leaflet";
+import { Board } from "../models";
 
 const BoardElts = ({
   boards,
@@ -12,14 +12,14 @@ const BoardElts = ({
   setSelectedGeomId?: Dispatch<string | null>;
 }) => (
   <>
-    {boards.map(({ id, coordinates, name, color }) => (
+    {boards.map(({ id, geojson, name, color }) => (
       <div key={id + "-boards"}>
         <GeoJSON
           pathOptions={{
             color,
             weight: selectedGeomId === id ? 7 : 3,
           }}
-          data={coordinates}
+          data={geojson}
           key={id}
           eventHandlers={{
             mouseover: () => setSelectedGeomId && setSelectedGeomId(id),

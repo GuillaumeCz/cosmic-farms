@@ -1,7 +1,7 @@
-import type { Parcel } from "../types";
 import { useNavigate } from "react-router-dom";
 import { GeoJSON, Tooltip } from "react-leaflet";
 import type { Dispatch } from "react";
+import { Parcel } from "../models";
 
 const ParcelElts = ({
   parcels,
@@ -18,9 +18,9 @@ const ParcelElts = ({
 
   return (
     <>
-      {parcels.map(({ coordinates, id, name, color }) => (
+      {parcels.map(({ geojson, id, name, color }) => (
         <GeoJSON
-          data={coordinates}
+          data={geojson}
           key={`${farmId}-${id}`}
           pathOptions={{
             color: farmId ? color : "grey",
