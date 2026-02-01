@@ -71,12 +71,6 @@ const classInit = (storedData: string | null) => {
       }),
   );
 
-  // console.log("start");
-  // console.log(fs[0].getLatLngs());
-  // console.log(fs[0].parcels[0].getLatLngs());
-  // console.log(fs[0].parcels[0].boards[0].getLatLngs());
-  // console.log(fs[0].parcels[0].boards[0].rows[0].getLatLngs());
-  // console.log(fs[0].parcels[0].boards[0].rows[2].getLatLngs());
   return fs;
 };
 
@@ -95,6 +89,19 @@ export const getParcel = (farmId: string, parcelId: string): Parcel | null => {
     fs
       .find(({ id }) => farmId === id)
       ?.parcels.find(({ id }) => id === parcelId) ?? null
+  );
+};
+
+export const getBoard = (
+  farmId: string,
+  parcelId: string,
+  boardId: string,
+): Board | null => {
+  return (
+    fs
+      .find(({ id }) => farmId === id)
+      ?.parcels.find(({ id }) => id === parcelId)
+      ?.boards.find(({ id }) => id === boardId) ?? null
   );
 };
 
@@ -154,4 +161,38 @@ export const createBoard = (
     console.error("farmId or parcelId unknown", { farmId, parcelId });
   }
   return b;
+};
+
+export const createRow = (
+  farmId: string,
+  parcelId: string,
+  boardId: string,
+  newRow: { name: string; position: LatLng[] },
+): Row<LineString | Point> => {
+  const r =
+    newRow.position.length === 1
+      ? new Row<Point>({ name: newRow.name, geojson: newRow.position[0] })
+      : new Row<LineString>({ name: newRow.name, geojson: newRow.position });
+
+  const fIndex = fs.findIndex(({ id }) => id === farmId);
+  const pIndex = fs[fIndex].parcels.findIndex(({ id }) => id === parcelId);
+  const bIndex = fs[fIndex].parcels[pIndex].boards.findIndex(
+    ({ id }) => id === boardId,
+  );
+
+  if (fIndex !== -1 && pIndex !== -1 && bIndex !== -1) {
+    fs[fIndex].parcels[pIndex].boards[bIndex].rows = [
+      ...fs[fIndex].parcels[pIndex].boards[bIndex].rows,
+      r,
+    ];
+    const json = fs.map((f) => f.toString());
+    localStorage.setItem("farms", JSON.stringify(json));
+  } else {
+    console.error("farmId or parcelId or boardId unknown", {
+      farmId,
+      parcelId,
+      boardId,
+    });
+  }
+  return r;
 };

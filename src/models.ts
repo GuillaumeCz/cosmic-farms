@@ -47,11 +47,11 @@ export function parseGeoJSONPoint(point: Point): Feature<Point> {
   return c;
 }
 
-function parseLatLngToLineString(l: LatLng[]): Feature<LineString> {
+function parseLatLngToLineString(line: LatLng[]): Feature<LineString> {
   return geojson.parse(
-    { l },
+    { line: line.map((l) => [l.lng, l.lat]) },
     {
-      LineString: "l",
+      LineString: "line",
     },
   );
 }

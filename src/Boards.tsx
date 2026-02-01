@@ -179,6 +179,15 @@ function Boards() {
                       </List.Item>
                     )}
                   />
+                  <Button
+                    onClick={() =>
+                      navigate(
+                        `/farms/${farm.id}/parcels/${parcelId}/boards/${id}/new`,
+                      )
+                    }
+                  >
+                    New row
+                  </Button>
                 </Card>
               ))}
             </>

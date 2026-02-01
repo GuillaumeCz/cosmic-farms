@@ -10,6 +10,7 @@ import BaseLayout from "./BaseLayout";
 import Providers from "./Providers";
 import NewParcel from "./NewParcel";
 import NewBoard from "./NewBoard";
+import NewRow from "./NewRow";
 
 const { Header, Content } = Layout;
 
@@ -35,6 +36,10 @@ function App() {
                 <Route
                   path="/farms/:farmId/parcels/:parcelId"
                   element={<Boards />}
+                />
+                <Route
+                  path="/farms/:farmId/parcels/:parcelId/boards/:boardId/new"
+                  element={<NewRow />}
                 />
               </Route>
             </Routes>
