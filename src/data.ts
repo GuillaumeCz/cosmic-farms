@@ -90,6 +90,14 @@ export const getFarm = (farmId: string): Farm | null => {
   return fs.find(({ id }) => farmId === id) ?? null;
 };
 
+export const getParcel = (farmId: string, parcelId: string): Parcel | null => {
+  return (
+    fs
+      .find(({ id }) => farmId === id)
+      ?.parcels.find(({ id }) => id === parcelId) ?? null
+  );
+};
+
 export const createFarm = (newFarm: {
   owner: string;
   name: string;
@@ -125,4 +133,25 @@ export const createParcel = (
     console.error("farmId unknown");
   }
   return p;
+};
+
+export const createBoard = (
+  farmId: string,
+  parcelId: string,
+  newBoard: { name: string; position: LatLng[] },
+): Board => {
+  const b = new Board({ name: newBoard.name, geojson: newBoard.position });
+  const fIndex = fs.findIndex(({ id }) => id === farmId);
+  const pIndex = fs[fIndex].parcels.findIndex(({ id }) => id === parcelId);
+  if (fIndex !== -1 && pIndex !== -1) {
+    fs[fIndex].parcels[pIndex].boards = [
+      ...fs[fIndex].parcels[pIndex].boards,
+      b,
+    ];
+    const json = fs.map((f) => f.toString());
+    localStorage.setItem("farms", JSON.stringify(json));
+  } else {
+    console.error("farmId or parcelId unknown", { farmId, parcelId });
+  }
+  return b;
 };

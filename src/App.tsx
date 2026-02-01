@@ -9,6 +9,7 @@ import "./App.css";
 import BaseLayout from "./BaseLayout";
 import Providers from "./Providers";
 import NewParcel from "./NewParcel";
+import NewBoard from "./NewBoard";
 
 const { Header, Content } = Layout;
 
@@ -27,6 +28,10 @@ function App() {
                 <Route path="/farms/:farmId/new" element={<NewParcel />} />
                 <Route path="/farms/:farmId" element={<Parcels />} />
                 <Route path="/farms/:farmId/parcels" element={<Parcels />} />
+                <Route
+                  path="/farms/:farmId/parcels/:parcelId/new"
+                  element={<NewBoard />}
+                />
                 <Route
                   path="/farms/:farmId/parcels/:parcelId"
                   element={<Boards />}

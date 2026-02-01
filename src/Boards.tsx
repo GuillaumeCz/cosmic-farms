@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getFarm } from "./data";
 import Card from "antd/es/card/Card";
-import { List } from "antd";
+import { Button, List } from "antd";
 import { Farm, Parcel } from "./models";
 
 import { LatLng } from "leaflet";
@@ -25,6 +25,7 @@ function Boards() {
   const [parcel, setParcel] = useState<Parcel | null>();
   const [bounds, setBounds] = useState<LatLng[]>([]);
   const [selectedGeomId, setSelectedGeomId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { setCurrentFarm, currentFarm } = useContext(
     CurrentFarmContext,
   ) as CurrentFarmContextType;
@@ -104,6 +105,13 @@ function Boards() {
         <>
           {parcel && (
             <>
+              <Button
+                onClick={() =>
+                  navigate(`/farms/${farm.id}/parcels/${parcelId}/new`)
+                }
+              >
+                New board
+              </Button>
               {parcel.boards.map(({ id, name, rows, color, getLatLngs }) => (
                 <Card
                   extra={
