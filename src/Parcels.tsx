@@ -87,6 +87,11 @@ function Parcels() {
                 header={<div>Number of boards: {boards.length}</div>}
                 renderItem={(b) => <List.Item>{b.name}</List.Item>}
               />
+              <Button
+                onClick={() => navigate(`/farms/${farmId}/parcels/${id}/new`)}
+              >
+                New board
+              </Button>
               <Link to={`/farms/${farm.id}/parcels/${id}`}>See all boards</Link>
             </>
           ),

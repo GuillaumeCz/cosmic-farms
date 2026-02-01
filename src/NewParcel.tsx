@@ -2,11 +2,13 @@ import { useContext, useEffect, useState } from "react";
 import { MapContext, type MapContextType } from "./Providers";
 import L, { LatLng } from "leaflet";
 import { Form, Input, Button, Space, InputNumber } from "antd";
-import { Tooltip, GeoJSON, Polyline, useMapEvents } from "react-leaflet";
+import { GeoJSON, Polyline, useMapEvents } from "react-leaflet";
 import { colorHash, createParcel, getFarm } from "./data";
 import { useNavigate, useParams } from "react-router-dom";
 import { LatLngsToFeaturePolygon, latLngToFeaturePoint } from "./utils";
 import { Farm } from "./models";
+import FarmElts from "./map/FarmElts";
+import ParcelElts from "./map/ParcelElts";
 
 function NewParcel() {
   const [farm, setFarm] = useState<Farm>();
@@ -59,7 +61,10 @@ function NewParcel() {
       if (f) {
         setFarm(f);
 
-        setViewBounds(f.getLatLngs());
+        setViewBounds([
+          ...f.getLatLngs(),
+          ...f.parcels.map((p) => p.getLatLngs()).flat(),
+        ]);
       }
     }
   }, []);
@@ -69,14 +74,10 @@ function NewParcel() {
       <>
         <MarkerAdd />
         {farm && (
-          <GeoJSON
-            data={farm.geojson}
-            key={`${farm.id}`}
-            pointToLayer={(_, pos) => L.circleMarker(pos, { radius: 8 })}
-            pathOptions={{ color: farm.color }}
-          >
-            <Tooltip>{farm.name}</Tooltip>{" "}
-          </GeoJSON>
+          <>
+            <FarmElts farms={[farm]} />
+            <ParcelElts parcels={farm.parcels} />
+          </>
         )}
         {isValidPolygon && (
           <>
@@ -214,6 +215,7 @@ function NewParcel() {
                                 pts[i].lat = e;
                               }
                               setPoints(pts);
+                              console.log(i);
                               form.setFieldValue(`${i}-lat`, e);
                             }
                           }}
