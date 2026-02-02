@@ -1,14 +1,17 @@
 import { useContext, useEffect, useState } from "react";
-import { MapContext, type MapContextType } from "./Providers";
+import { MapContext, type MapContextType } from "../Providers";
 import { LatLng } from "leaflet";
 import { Form, Input, Button, InputNumber, Space } from "antd";
 import { useMapEvents, Marker } from "react-leaflet";
-import { createFarm } from "./data";
-import { useNavigate } from "react-router-dom";
+import { createFarm, getFarm, updateFarm } from "../data";
+import { useNavigate, useParams } from "react-router-dom";
+import type { Farm } from "../models";
+import { geoJsonToLatLng } from "../utils";
 
-function NewFarm() {
-  const defaultValues = new LatLng(44.342956930969336, 3.69883999486035);
-  const [farmPosition, setFarmPosition] = useState<LatLng>(defaultValues);
+const defaultPosition = new LatLng(44.342956930969336, 3.69883999486035);
+
+function FarmForm() {
+  const [farmPosition, setFarmPosition] = useState<LatLng>(defaultPosition);
   const { setViewBounds, setMapChildren } = useContext(
     MapContext,
   ) as MapContextType;
@@ -18,6 +21,21 @@ function NewFarm() {
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [lat, setLat] = useState<string | number | null>();
   const [lng, setLng] = useState<string | number | null>();
+  const { farmId } = useParams();
+  const [farm, setFarm] = useState<Farm>();
+  const [hasChanged, setHasChanged] = useState(false);
+  const isUpdate = !!farmId;
+
+  useEffect(() => {
+    // is in Edit mode
+    if (farmId) {
+      const f: Farm | null = getFarm(farmId);
+      if (f) {
+        setFarm(f);
+        setFarmPosition(geoJsonToLatLng(f.geojson.geometry));
+      }
+    }
+  }, []);
 
   const MarkerAdd = () => {
     useMapEvents({
@@ -30,7 +48,7 @@ function NewFarm() {
     return <></>;
   };
   useEffect(() => {
-    setViewBounds([defaultValues]);
+    farmPosition && setViewBounds([farmPosition]);
     setMapChildren(
       <>
         <MarkerAdd />
@@ -51,8 +69,8 @@ function NewFarm() {
   }, [lat]);
 
   useEffect(() => {
-    setLat(farmPosition.lat === defaultValues.lat ? null : farmPosition.lat);
-    setLng(farmPosition.lng === defaultValues.lng ? null : farmPosition.lng);
+    setLat(farmPosition.lat === defaultPosition.lat ? null : farmPosition.lat);
+    setLng(farmPosition.lng === defaultPosition.lng ? null : farmPosition.lng);
     setMapChildren(
       <>
         <MarkerAdd />
@@ -67,35 +85,69 @@ function NewFarm() {
       .validateFields({ validateOnly: true })
       .then(() => setIsFormValid(true))
       .catch(() => setIsFormValid(false));
+    if (farm) {
+      const { name, owner, lat, lng } = form.getFieldsValue();
+      const farmLatLng = farm.getLatLngs();
+
+      setHasChanged(
+        name !== farm.name ||
+          owner !== farm.owner ||
+          lat !== farmLatLng[0].lat ||
+          lng !== farmLatLng[0].lng,
+      );
+    }
   }, [form, values]);
 
-  const onFinish = (v: { owner: string; name: string }) => {
+  const onFinish = (v: {
+    owner: string;
+    name: string;
+    lat: number;
+    lng: number;
+  }) => {
     if (farmPosition) {
-      createFarm({ ...v, position: farmPosition });
+      if (isUpdate) {
+        updateFarm(farmId, { ...v, position: farmPosition });
+      } else {
+        createFarm({ ...v, position: farmPosition });
+      }
       navigate("/farms");
     }
   };
 
   return (
     <Form
+      key={farm ? farm.id : "farm-form"}
       name="create-farm"
       layout="vertical"
       clearOnDestroy
       form={form}
       onFinish={onFinish}
     >
-      <Form.Item label={"Name"} name={"name"} rules={[{ required: true }]}>
+      <Form.Item
+        initialValue={farm && farm.name}
+        label={"Name"}
+        name={"name"}
+        rules={[{ required: true }]}
+      >
         <Input />
       </Form.Item>
-      <Form.Item label={"Owner"} name={"owner"} rules={[{ required: true }]}>
-        <Input />
+      <Form.Item
+        initialValue={farm && farm.owner}
+        label={"Owner"}
+        name={"owner"}
+        rules={[{ required: true }]}
+      >
+        <Input defaultValue={farm && farm.owner} />
       </Form.Item>
       <div>
         <Form.Item label="Localisation">
           <Space.Compact>
-            <Form.Item name={"lat"} rules={[{ required: true }]}>
+            <Form.Item
+              name={"lat"}
+              rules={[{ required: true }]}
+              initialValue={farm && farm.geojson.geometry.coordinates[1]}
+            >
               <>
-                <p style={{ display: "none" }}>{farmPosition.lat}</p>
                 <InputNumber
                   suffix="° N"
                   style={{ width: 200 }}
@@ -109,9 +161,12 @@ function NewFarm() {
                 />
               </>
             </Form.Item>
-            <Form.Item name="lng" rules={[{ required: true }]}>
+            <Form.Item
+              name="lng"
+              rules={[{ required: true }]}
+              initialValue={farm && farm.geojson.geometry.coordinates[0]}
+            >
               <>
-                <p style={{ display: "none" }}>{farmPosition.lng}</p>
                 <InputNumber
                   suffix="°E"
                   style={{ width: 200 }}
@@ -132,13 +187,30 @@ function NewFarm() {
         <Button
           type="primary"
           htmlType="submit"
-          disabled={!farmPosition || !isFormValid}
+          disabled={isUpdate ? !hasChanged : !farmPosition || !isFormValid}
         >
           Submit
+        </Button>
+        <Button
+          disabled={!hasChanged}
+          onClick={() => {
+            if (farm) {
+              const { lat, lng } = farm?.getLatLngs()[0];
+              form.setFieldsValue({
+                name: farm.name,
+                owner: farm.owner,
+                lat,
+                lng,
+              });
+              setFarmPosition(geoJsonToLatLng(farm.geojson.geometry));
+            }
+          }}
+        >
+          Reset
         </Button>
       </Form.Item>
     </Form>
   );
 }
 
-export default NewFarm;
+export default FarmForm;

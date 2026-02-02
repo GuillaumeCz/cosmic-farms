@@ -143,6 +143,7 @@ export class Row<F extends Point | LineString> extends AbstractElement {
     };
   };
 }
+
 export class Board extends AbstractElement {
   geojson: Feature<Polygon>;
   rows: Row<Point | LineString>[] = [];
@@ -231,6 +232,10 @@ export class Farm extends AbstractElement {
       geojson instanceof LatLng ? parseLatLngToPoint(geojson) : geojson;
     this.parcels = parcels ?? [];
   }
+
+  setGeojsonAsLatLng = (pos: LatLng) => {
+    this.geojson = parseLatLngToPoint(pos);
+  };
 
   toJSON = (): object => {
     return {

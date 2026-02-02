@@ -68,6 +68,9 @@ function Farms() {
           extra: <div className="color" style={{ background: color }}></div>,
           children: (
             <>
+              <Button onClick={() => navigate(`/farms/${id}/edit`)}>
+                Update
+              </Button>
               <p>Owner: {owner}</p>
               <List
                 size="small"

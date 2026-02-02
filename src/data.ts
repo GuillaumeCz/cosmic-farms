@@ -125,6 +125,26 @@ export const createFarm = (newFarm: {
   return fs;
 };
 
+export const updateFarm = (
+  farmId: string,
+  updatedValues: {
+    name: string;
+    owner: string;
+    position: LatLng;
+  },
+): Farm[] => {
+  const i = fs.findIndex(({ id }) => id === farmId);
+  fs[i].name = updatedValues.name;
+  fs[i].owner = updatedValues.owner;
+  fs[i].setGeojsonAsLatLng(updatedValues.position);
+
+  // To extract to function
+  const json = fs.map((f) => f.toString());
+
+  localStorage.setItem("farms", JSON.stringify(json));
+  return fs;
+};
+
 export const createParcel = (
   farmId: string,
   newParcel: { name: string; position: LatLng[] },

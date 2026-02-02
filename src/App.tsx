@@ -1,7 +1,7 @@
 import { Layout } from "antd";
 import { Route, Routes } from "react-router-dom";
 import Farms from "./Farms";
-import NewFarm from "./NewFarm";
+import FarmForm from "./forms/FarmForm";
 import Parcels from "./Parcels";
 import Boards from "./Boards";
 
@@ -24,8 +24,9 @@ function App() {
             <Routes>
               <Route path="/" element={<BaseLayout />}>
                 <Route index element={<Farms />} />
-                <Route path="/farms/new" element={<NewFarm />} />
+                <Route path="/farms/new" element={<FarmForm />} />
                 <Route path="/farms" element={<Farms />} />
+                <Route path="/farms/:farmId/edit" element={<FarmForm />} />
                 <Route path="/farms/:farmId/new" element={<NewParcel />} />
                 <Route path="/farms/:farmId" element={<Parcels />} />
                 <Route path="/farms/:farmId/parcels" element={<Parcels />} />
