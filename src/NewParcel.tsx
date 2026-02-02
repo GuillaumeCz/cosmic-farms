@@ -29,8 +29,8 @@ function NewParcel() {
       click(e) {
         if (isEditing) {
           if (points.length >= 1) {
-            // If last point less than 15 meters away...
             const p = points[0].distanceTo(e.latlng);
+            // If last point less than 30 meters away...
             if (p < 30) {
               setIsEditing(false);
               setPoints([...points, points[0]]);
@@ -102,11 +102,17 @@ function NewParcel() {
                     }
                     eventHandlers={{
                       click: (e) => {
-                        const c = points.filter(
-                          (r) =>
-                            r.lng !== e.latlng.lng && r.lat !== e.latlng.lat,
-                        );
-                        setPoints(c);
+                        if (e.latlng.distanceTo(points[0]) > 30) {
+                          // Stops event propagation to parent map
+                          // @ts-ignore
+                          e.originalEvent.view.L.DomEvent.stopPropagation(e);
+
+                          const c = points.filter(
+                            (r) =>
+                              r.lng !== e.latlng.lng && r.lat !== e.latlng.lat,
+                          );
+                          setPoints(c);
+                        }
                       },
                     }}
                   ></GeoJSON>
